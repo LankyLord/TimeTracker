@@ -1,0 +1,17 @@
+author: H31IX
+database: false
+description: Find when a player last left the server.
+main: net.h31ix.assistant.Assistant
+name: Seen
+startup: postworld
+url: http://H31IX.NET/
+version: '1.3'
+commands:
+  seen: 
+    description: Find when a player was last online on your server
+    usage: /seen username
+  playtime: 
+    description: See when your first login was
+    usage: /playtime
+
+    
