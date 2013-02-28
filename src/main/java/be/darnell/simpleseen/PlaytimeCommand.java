@@ -35,42 +35,36 @@ import org.bukkit.entity.Player;
 
 class PlaytimeCommand implements CommandExecutor {
 
-  // $FF: synthetic field
   final SimpleSeen plugin;
 
   PlaytimeCommand(SimpleSeen plugin) {
     this.plugin = plugin;
   }
 
+  @Override
   public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
     if (cs instanceof Player) {
       Player player = (Player) cs;
-      String safenick = player.getName().toLowerCase().replaceAll("\'", "\"");
-      String safenick1 = safenick.replaceAll("Â§f", "");
       if (args.length < 1) {
-        String first = plugin.getConfig().getString(safenick1 + "+");
-        if (first != null) {
-          long lStartTime1 = Long.parseLong(first);
-          long lEndTime1 = (new Date()).getTime();
-          long difference1 = lEndTime1 - lStartTime1;
-          long finaltime = difference1 / 60000L;
-          String operation = "minute(s)";
-          if (finaltime > 60L) {
-            finaltime /= 60L;
-            operation = "hour(s)";
-            if (finaltime > 24L) {
-              finaltime /= 24L;
-              operation = "day(s)";
-            }
-          }
-
-          player.sendMessage(ChatColor.RED + "Your first login was " + finaltime + " " + operation + " ago.");
-        }
+        long first = plugin.getFirstSeen(player.getName());
+        if (first != -1L)
+          player.sendMessage(ChatColor.YELLOW + "Your first login was "
+                  + ChatColor.GREEN + SimpleSeen.humanTime(first, (new Date()).getTime())
+                  + ChatColor.YELLOW + " ago.");
+        long now = (new Date()).getTime();
+        player.sendMessage(ChatColor.YELLOW + "Current session has lasted "
+                + ChatColor.GREEN
+                + SimpleSeen.humanTime(plugin.players.get(player.getName()), now));
+        player.sendMessage(ChatColor.YELLOW + "You have spent a total of "
+                + ChatColor.GREEN + SimpleSeen.humanTime(0L,
+                (now - plugin.players.get(player.getName()))
+                + plugin.getPlayTime(player.getName()))
+                + ChatColor.YELLOW + " on this server.");
       } else
         player.sendMessage(ChatColor.RED + "Usage: /playtime");
 
       return true;
-    }
-    else return false;
+    } else
+      return false;
   }
 }

@@ -26,10 +26,13 @@
  */
 package be.darnell.simpleseen;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SimpleSeen extends JavaPlugin {
+  Map<String, Long> players;
 
   @Override
   public void onDisable() {
@@ -41,9 +44,58 @@ public class SimpleSeen extends JavaPlugin {
     PluginManager pluginManager = this.getServer().getPluginManager();
     pluginManager.registerEvents(new SimpleSeenPlayerListener(this), this);
     this.saveDefaultConfig();
+    players = new HashMap<String, Long>();
 
     this.getCommand("seen").setExecutor(new SeenCommand(this));
     this.getCommand("playtime").setExecutor(new PlaytimeCommand(this));
     System.out.println(this + " is now enabled.");
+  }
+  
+  public long getFirstSeen(String name) {
+    return getConfig().getLong(name.toLowerCase() + ".first", -1L);
+  }
+  
+  public long getLastSeen(String name) {
+    return getConfig().getLong(name.toLowerCase() + ".last", -1L);
+  }
+  
+  public long getPlayTime(String name) {
+    return getConfig().getLong(name.toLowerCase() + ".playtime", -1L);
+  }
+  
+  protected void addPlayTime(String name, long value) {
+    getConfig().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
+    saveConfig();
+  }
+  
+  protected void setFirstSeen(String name, long value) {
+    getConfig().set(name.toLowerCase() + ".first", Long.valueOf(value));
+    saveConfig();
+  }
+  
+  protected void setLastSeen(String name, long value) {
+    getConfig().set(name.toLowerCase() + ".last", Long.valueOf(value));
+    saveConfig();
+  }
+  
+  protected static String humanTime(long start, long end) {
+    if (start != -1L) {
+      long difference = end - start;
+      long finaltime = difference / 1000L;
+      if (finaltime >= 86400L) {
+        String s = (finaltime >= 172800L) ? "days" : "day";
+        return (finaltime / 86400L + " " + s);
+      } else if (finaltime >= 3600L) {
+        String s = (finaltime >= 7200L) ? "hours" : "hour";
+        return (finaltime / 3600L + " " + s);
+      } else if (finaltime >= 60L) {
+        String s = (finaltime >= 120L) ? "minutes" : "minute";
+        return (finaltime / 60L + " " + s);
+      } else {
+        String s = (finaltime >= 2) ? "seconds" : "second";
+        return (finaltime + " " + s);
+      }
+    }
+    return null;
   }
 }

@@ -27,7 +27,7 @@
 package be.darnell.simpleseen;
 
 import java.util.Date;
-import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -43,28 +43,23 @@ public class SimpleSeenPlayerListener implements Listener {
 
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event) {
-    Player player = event.getPlayer();
-    String safenick = player.getName().toLowerCase().replaceAll("\'", "\"");
-    String safenick1 = safenick.replaceAll("Â§f", "");
-
-    long lStartTime = (new Date()).getTime();
-    plugin.getConfig().set(safenick1, Long.valueOf(lStartTime));
-
-    plugin.saveConfig();
+    long time = (new Date()).getTime();
+    String name = event.getPlayer().getName();
+    plugin.setLastSeen(name, time);
+    plugin.addPlayTime(name, time - plugin.players.get(name));
+    plugin.players.remove(name);
   }
 
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
-    Player player = event.getPlayer();
-    String safenick = player.getName().toLowerCase().replaceAll("\'", "\"");
-    String safenick1 = safenick.replaceAll("Â§f", "");
-    String safenick2 = safenick1 + "+";
-    String seen = plugin.getConfig().getString(safenick1);
-    String seen2 = plugin.getConfig().getString(safenick2);
-    if (seen == null || seen2 == null) {
-      long ex = (new Date()).getTime();
-      plugin.getConfig().set(safenick2, Long.valueOf(ex));
-      plugin.saveConfig();
+    String name = event.getPlayer().getName();
+    long last = plugin.getLastSeen(name);
+    long first = plugin.getFirstSeen(name);
+    long ex = (new Date()).getTime();
+    plugin.players.put(name, ex);
+    if (last == -1L || first == -1L) {
+      plugin.setFirstSeen(name, ex);
+      plugin.getServer().broadcastMessage(ChatColor.YELLOW + "Welcome " + name + " to the server!");
     }
   }
 }

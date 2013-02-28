@@ -1,17 +1,25 @@
-author: H31IX
+author: cedeel
 database: false
 description: Find when a player last left the server.
-main: net.h31ix.assistant.Assistant
-name: Seen
-startup: postworld
-url: http://H31IX.NET/
-version: '1.3'
+main: be.darnell.simpleseen.SimpleSeen
+name: SimpleSeen
+website: http://github.com/cedeel/SimpleSeen/
+version: maven-version-number
 commands:
   seen: 
     description: Find when a player was last online on your server
     usage: /seen username
+    permission: simpleseen.seen
   playtime: 
     description: See when your first login was
     usage: /playtime
+    permission: simpleseen.playtime
+permissions:
+  simpleseen.playtime:
+    description: See your play time.
+    default: true
+  simpleseen.seen:
+    description: See first, last and total play time.
+    default: op
 
     
