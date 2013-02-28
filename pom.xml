@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>be.darnell.simpleseen</groupId>
-    <artifactId>SimpleSeen</artifactId>
+    <artifactId>TimeTracker</artifactId>
     <version>1.4</version>
-    <name>SimpleSeen</name>
-    <url>http://www.github.com/cedeel/SimpleSeen/</url>
+    <name>TimeTracker</name>
+    <url>http://www.github.com/cedeel/TimeTracker/</url>
     <repositories>
         <repository>
             <id>bukkit-repo</id>

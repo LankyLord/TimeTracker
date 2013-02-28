@@ -1,9 +1,9 @@
 author: cedeel
 database: false
 description: Find when a player last left the server.
-main: be.darnell.simpleseen.SimpleSeen
-name: SimpleSeen
-website: http://github.com/cedeel/SimpleSeen/
+main: be.darnell.timetracker.TimeTracker
+name: TimeTracker
+website: http://github.com/cedeel/TimeTracker/
 version: maven-version-number
 commands:
   seen: 
@@ -13,7 +13,7 @@ commands:
   playtime: 
     description: See when your first login was
     usage: /playtime
-    permission: simpleseen.playtime
+    permission: timetracker.playtime
 permissions:
   simpleseen.playtime:
     description: See your play time.

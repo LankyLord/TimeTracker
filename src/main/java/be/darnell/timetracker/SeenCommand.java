@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.simpleseen;
+package be.darnell.timetracker;
 
 import java.util.Date;
 import java.util.List;
@@ -35,9 +35,9 @@ import org.bukkit.command.CommandSender;
 
 class SeenCommand implements CommandExecutor {
 
-  final SimpleSeen plugin;
+  final TimeTracker plugin;
 
-  SeenCommand(SimpleSeen plugin) {
+  SeenCommand(TimeTracker plugin) {
     this.plugin = plugin;
   }
 
@@ -54,9 +54,9 @@ class SeenCommand implements CommandExecutor {
           List list = plugin.getServer().matchPlayer(playerName);
           sender.sendMessage(ChatColor.AQUA + "===== " + ChatColor.GREEN + "Player times for " + playerName + ChatColor.AQUA + " =====");
           if (seen != -1L)
-            sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + SimpleSeen.humanTime(plugin.getLastSeen(playerName), (new Date()).getTime()) + ChatColor.YELLOW + " ago.");
-          sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + SimpleSeen.humanTime(plugin.getFirstSeen(playerName), (new Date()).getTime()) + ChatColor.YELLOW + " ago.");
-          sender.sendMessage(ChatColor.YELLOW + "Has spent " + ChatColor.GREEN + SimpleSeen.humanTime(0L, plugin.getPlayTime(playerName)) + ChatColor.YELLOW + " on the server.");
+            sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + TimeTracker.humanTime(plugin.getLastSeen(playerName), (new Date()).getTime()) + ChatColor.YELLOW + " ago.");
+          sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + TimeTracker.humanTime(plugin.getFirstSeen(playerName), (new Date()).getTime()) + ChatColor.YELLOW + " ago.");
+          sender.sendMessage(ChatColor.YELLOW + "Has spent " + ChatColor.GREEN + TimeTracker.humanTime(0L, plugin.getPlayTime(playerName)) + ChatColor.YELLOW + " on the server.");
           if (list.size() == 1)
             sender.sendMessage(ChatColor.GREEN + playerName + " is online right now! Say hey!");
         }

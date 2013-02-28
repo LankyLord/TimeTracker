@@ -24,14 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.simpleseen;
+package be.darnell.timetracker;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class SimpleSeen extends JavaPlugin {
+public class TimeTracker extends JavaPlugin {
   Map<String, Long> players;
 
   @Override
@@ -42,7 +42,7 @@ public class SimpleSeen extends JavaPlugin {
   @Override
   public void onEnable() {
     PluginManager pluginManager = this.getServer().getPluginManager();
-    pluginManager.registerEvents(new SimpleSeenPlayerListener(this), this);
+    pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
     this.saveDefaultConfig();
     players = new HashMap<String, Long>();
 

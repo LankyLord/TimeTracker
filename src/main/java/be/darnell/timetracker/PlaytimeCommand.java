@@ -24,42 +24,47 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.simpleseen;
+package be.darnell.timetracker;
 
 import java.util.Date;
 import org.bukkit.ChatColor;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class SimpleSeenPlayerListener implements Listener {
+class PlaytimeCommand implements CommandExecutor {
 
-  private final SimpleSeen plugin;
+  final TimeTracker plugin;
 
-  public SimpleSeenPlayerListener(SimpleSeen plugin) {
+  PlaytimeCommand(TimeTracker plugin) {
     this.plugin = plugin;
   }
 
-  @EventHandler
-  public void onPlayerQuit(PlayerQuitEvent event) {
-    long time = (new Date()).getTime();
-    String name = event.getPlayer().getName();
-    plugin.setLastSeen(name, time);
-    plugin.addPlayTime(name, time - plugin.players.get(name));
-    plugin.players.remove(name);
-  }
+  @Override
+  public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
+    if (cs instanceof Player) {
+      Player player = (Player) cs;
+      if (args.length < 1) {
+        long first = plugin.getFirstSeen(player.getName());
+        if (first != -1L)
+          player.sendMessage(ChatColor.YELLOW + "Your first login was "
+                  + ChatColor.GREEN + TimeTracker.humanTime(first, (new Date()).getTime())
+                  + ChatColor.YELLOW + " ago.");
+        long now = (new Date()).getTime();
+        player.sendMessage(ChatColor.YELLOW + "Current session has lasted "
+                + ChatColor.GREEN
+                + TimeTracker.humanTime(plugin.players.get(player.getName()), now));
+        player.sendMessage(ChatColor.YELLOW + "You have spent a total of "
+                + ChatColor.GREEN + TimeTracker.humanTime(0L,
+                (now - plugin.players.get(player.getName()))
+                + plugin.getPlayTime(player.getName()))
+                + ChatColor.YELLOW + " on this server.");
+      } else
+        player.sendMessage(ChatColor.RED + "Usage: /playtime");
 
-  @EventHandler
-  public void onPlayerJoin(PlayerJoinEvent event) {
-    String name = event.getPlayer().getName();
-    long last = plugin.getLastSeen(name);
-    long first = plugin.getFirstSeen(name);
-    long ex = (new Date()).getTime();
-    plugin.players.put(name, ex);
-    if (last == -1L || first == -1L) {
-      plugin.setFirstSeen(name, ex);
-      plugin.getServer().broadcastMessage(ChatColor.YELLOW + "Welcome " + name + " to the server!");
-    }
+      return true;
+    } else
+      return false;
   }
 }
