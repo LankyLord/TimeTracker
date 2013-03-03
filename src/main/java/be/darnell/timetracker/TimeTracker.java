@@ -26,58 +26,96 @@
  */
 package be.darnell.timetracker;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TimeTracker extends JavaPlugin {
+
   Map<String, Long> players;
+  private FileConfiguration Data = null;
+  private File DataFile = null;
 
   @Override
   public void onDisable() {
     System.out.println(this + " is now disabled!");
+    saveData();
   }
 
   @Override
   public void onEnable() {
     PluginManager pluginManager = this.getServer().getPluginManager();
     pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
-    this.saveDefaultConfig();
+    saveData();
     players = new HashMap<String, Long>();
 
     this.getCommand("seen").setExecutor(new SeenCommand(this));
     this.getCommand("playtime").setExecutor(new PlaytimeCommand(this));
     System.out.println(this + " is now enabled.");
   }
-  
+
   public long getFirstSeen(String name) {
-    return getConfig().getLong(name.toLowerCase() + ".first", -1L);
+    return getData().getLong(name.toLowerCase() + ".first", -1L);
   }
-  
+
   public long getLastSeen(String name) {
-    return getConfig().getLong(name.toLowerCase() + ".last", -1L);
+    return getData().getLong(name.toLowerCase() + ".last", -1L);
   }
-  
+
   public long getPlayTime(String name) {
-    return getConfig().getLong(name.toLowerCase() + ".playtime", -1L);
+    return getData().getLong(name.toLowerCase() + ".playtime", -1L);
   }
-  
+
+  public void reloadData() {
+    if (DataFile == null)
+      DataFile = new File(getDataFolder(), "Data.yml");
+    Data = YamlConfiguration.loadConfiguration(DataFile);
+
+    InputStream defData = this.getResource("Data.yml");
+    if (defData != null) {
+      YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defData);
+      Data.setDefaults(defConfig);
+    }
+  }
+
+  public FileConfiguration getData() {
+    if (Data == null)
+      this.reloadData();
+    return Data;
+  }
+
+  public void saveData() {
+    if (Data == null || DataFile == null)
+      return;
+    try {
+      getData().save(DataFile);
+    } catch (IOException ex) {
+      this.getLogger().log(Level.SEVERE, "Could not save config to " + DataFile, ex);
+    }
+  }
+
   protected void addPlayTime(String name, long value) {
-    getConfig().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
-    saveConfig();
+    getData().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
+    saveData();
   }
-  
+
   protected void setFirstSeen(String name, long value) {
-    getConfig().set(name.toLowerCase() + ".first", Long.valueOf(value));
-    saveConfig();
+    getData().set(name.toLowerCase() + ".first", Long.valueOf(value));
+    saveData();
   }
-  
+
   protected void setLastSeen(String name, long value) {
-    getConfig().set(name.toLowerCase() + ".last", Long.valueOf(value));
-    saveConfig();
+    getData().set(name.toLowerCase() + ".last", Long.valueOf(value));
+    saveData();
   }
-  
+
   protected static String humanTime(long start, long end) {
     if (start != -1L) {
       long difference = end - start;
