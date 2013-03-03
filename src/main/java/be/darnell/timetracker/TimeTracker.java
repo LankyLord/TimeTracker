@@ -74,7 +74,7 @@ public class TimeTracker extends JavaPlugin {
     return getData().getLong(name.toLowerCase() + ".playtime", -1L);
   }
 
-  public void reloadData() {
+  private void reloadData() {
     if (DataFile == null)
       DataFile = new File(getDataFolder(), "Data.yml");
     Data = YamlConfiguration.loadConfiguration(DataFile);
@@ -86,13 +86,13 @@ public class TimeTracker extends JavaPlugin {
     }
   }
 
-  public FileConfiguration getData() {
+  private FileConfiguration getData() {
     if (Data == null)
       this.reloadData();
     return Data;
   }
 
-  public void saveData() {
+  private void saveData() {
     if (Data == null || DataFile == null)
       return;
     try {
