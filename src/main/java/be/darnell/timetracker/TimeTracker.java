@@ -53,6 +53,7 @@ public class TimeTracker extends JavaPlugin {
   public void onEnable() {
     PluginManager pluginManager = this.getServer().getPluginManager();
     pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
+    saveDefaultConfig();
     saveData();
     players = new HashMap<String, Long>();
 
