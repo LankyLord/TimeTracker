@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,7 +39,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TimeTracker extends JavaPlugin {
 
   protected Map<String, Long> players;
-  private FileConfiguration Data = null;
+  private YamlConfiguration Data = null;
   private File DataFile = null;
 
   @Override
@@ -86,7 +85,7 @@ public class TimeTracker extends JavaPlugin {
     }
   }
 
-  private FileConfiguration getData() {
+  private YamlConfiguration getData() {
     if (Data == null)
       this.reloadData();
     return Data;
