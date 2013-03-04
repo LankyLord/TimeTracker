@@ -33,9 +33,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-class PlaytimeCommand implements CommandExecutor {
+public final class PlaytimeCommand implements CommandExecutor {
 
-  final TimeTracker plugin;
+  private final TimeTracker plugin;
 
   PlaytimeCommand(TimeTracker plugin) {
     this.plugin = plugin;

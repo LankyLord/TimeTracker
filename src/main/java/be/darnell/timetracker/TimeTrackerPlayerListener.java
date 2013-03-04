@@ -33,12 +33,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class TimeTrackerPlayerListener implements Listener {
+public final class TimeTrackerPlayerListener implements Listener {
 
   private final TimeTracker plugin;
+  private final String joinMsg;
 
   public TimeTrackerPlayerListener(TimeTracker plugin) {
     this.plugin = plugin;
+    joinMsg = plugin.getConfig().getString("JoinMessage");
   }
 
   @EventHandler
@@ -53,15 +55,13 @@ public class TimeTrackerPlayerListener implements Listener {
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     String name = event.getPlayer().getName();
-    String firstjoin = plugin.getConfig().getString("JoinMessage");
-    firstjoin = firstjoin.replace("%p", name);
     long last = plugin.getLastSeen(name);
     long first = plugin.getFirstSeen(name);
     long ex = (new Date()).getTime();
     plugin.players.put(name, ex);
     if (last == -1L || first == -1L) {
       plugin.setFirstSeen(name, ex);
-      plugin.getServer().broadcastMessage(ChatColor.YELLOW + firstjoin);
+      plugin.getServer().broadcastMessage(ChatColor.YELLOW + joinMsg.replace("%p", name));
     }
   }
 }

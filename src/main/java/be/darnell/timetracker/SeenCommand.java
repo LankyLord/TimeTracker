@@ -33,9 +33,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-class SeenCommand implements CommandExecutor {
+public final class SeenCommand implements CommandExecutor {
 
-  final TimeTracker plugin;
+  private final TimeTracker plugin;
 
   SeenCommand(TimeTracker plugin) {
     this.plugin = plugin;
@@ -63,7 +63,7 @@ class SeenCommand implements CommandExecutor {
       else
         sender.sendMessage(ChatColor.YELLOW + "That player has never been here before.");
     } else
-      sender.sendMessage(ChatColor.YELLOW + "Usage: /seen <username>");
+      sender.sendMessage(ChatColor.RED + "Usage: /seen <username>");
 
     return true;
   }

@@ -39,7 +39,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class TimeTracker extends JavaPlugin {
 
-  Map<String, Long> players;
+  protected Map<String, Long> players;
   private FileConfiguration Data = null;
   private File DataFile = null;
 
