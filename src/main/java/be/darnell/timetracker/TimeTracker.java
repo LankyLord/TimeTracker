@@ -26,114 +26,146 @@
  */
 package be.darnell.timetracker;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
 public class TimeTracker extends JavaPlugin {
 
-  protected Map<String, Long> players;
-  private YamlConfiguration Data = null;
-  private File DataFile = null;
+    protected Map<String, Long> players;
+    private YamlConfiguration Data = null;
+    private File DataFile = null;
+    private static final String DATAFILENAME = "Data.yml";
+    private String joinMsg;
 
-  @Override
-  public void onDisable() {
-    System.out.println(this + " is now disabled!");
-    saveData();
-  }
-
-  @Override
-  public void onEnable() {
-    PluginManager pluginManager = this.getServer().getPluginManager();
-    pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
-    saveDefaultConfig();
-    saveData();
-    players = new HashMap<String, Long>();
-
-    this.getCommand("seen").setExecutor(new SeenCommand(this));
-    this.getCommand("playtime").setExecutor(new PlaytimeCommand(this));
-    System.out.println(this + " is now enabled.");
-  }
-
-  public long getFirstSeen(String name) {
-    return getData().getLong(name.toLowerCase() + ".first", -1L);
-  }
-
-  public long getLastSeen(String name) {
-    return getData().getLong(name.toLowerCase() + ".last", -1L);
-  }
-
-  public long getPlayTime(String name) {
-    return getData().getLong(name.toLowerCase() + ".playtime", -1L);
-  }
-
-  private void reloadData() {
-    if (DataFile == null)
-      DataFile = new File(getDataFolder(), "Data.yml");
-    Data = YamlConfiguration.loadConfiguration(DataFile);
-
-    InputStream defData = this.getResource("Data.yml");
-    if (defData != null) {
-      YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defData);
-      Data.setDefaults(defConfig);
+    protected static String humanTime(long start, long end) {
+        if (start != -1L) {
+            long finaltime = (end - start) / 1000L;
+            if (finaltime >= 86400L) {
+                String s = (finaltime >= 172800L) ? "days" : "day";
+                return (finaltime / 86400L + " " + s);
+            } else if (finaltime >= 3600L) {
+                String s = (finaltime >= 7200L) ? "hours" : "hour";
+                return (finaltime / 3600L + " " + s);
+            } else if (finaltime >= 60L) {
+                String s = (finaltime >= 120L) ? "minutes" : "minute";
+                return (finaltime / 60L + " " + s);
+            } else {
+                String s = (finaltime >= 2) ? "seconds" : "second";
+                return (finaltime + " " + s);
+            }
+        }
+        return null;
     }
-  }
 
-  private YamlConfiguration getData() {
-    if (Data == null)
-      this.reloadData();
-    return Data;
-  }
-
-  private void saveData() {
-    if (Data == null || DataFile == null)
-      return;
-    try {
-      getData().save(DataFile);
-    } catch (IOException ex) {
-      this.getLogger().log(Level.SEVERE, "Could not save config to " + DataFile, ex);
+    @Override
+    public void onDisable() {
+        for(String p : players.keySet()) {
+            removePlayer(p);
+        }
+        saveData();
+        System.out.println(this + " is now disabled!");
     }
-  }
 
-  protected void addPlayTime(String name, long value) {
-    getData().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
-    saveData();
-  }
+    @Override
+    public void onEnable() {
+        PluginManager pluginManager = this.getServer().getPluginManager();
+        pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
+        saveDefaultConfig();
+        saveData();
+        players = new HashMap<String, Long>();
 
-  protected void setFirstSeen(String name, long value) {
-    getData().set(name.toLowerCase() + ".first", Long.valueOf(value));
-    saveData();
-  }
+        this.getCommand("seen").setExecutor(new SeenCommand(this));
+        this.getCommand("playtime").setExecutor(new PlaytimeCommand(this));
 
-  protected void setLastSeen(String name, long value) {
-    getData().set(name.toLowerCase() + ".last", Long.valueOf(value));
-    saveData();
-  }
+        joinMsg = getConfig().getString("JoinMessage");
+        for(Player p : getServer().getOnlinePlayers()) {
+            addPlayer(p.getName());
+        }
 
-  protected static String humanTime(long start, long end) {
-    if (start != -1L) {
-      long difference = end - start;
-      long finaltime = difference / 1000L;
-      if (finaltime >= 86400L) {
-        String s = (finaltime >= 172800L) ? "days" : "day";
-        return (finaltime / 86400L + " " + s);
-      } else if (finaltime >= 3600L) {
-        String s = (finaltime >= 7200L) ? "hours" : "hour";
-        return (finaltime / 3600L + " " + s);
-      } else if (finaltime >= 60L) {
-        String s = (finaltime >= 120L) ? "minutes" : "minute";
-        return (finaltime / 60L + " " + s);
-      } else {
-        String s = (finaltime >= 2) ? "seconds" : "second";
-        return (finaltime + " " + s);
-      }
+        System.out.println(this + " is now enabled.");
     }
-    return null;
-  }
+
+    public long getFirstSeen(String name) {
+        return getData().getLong(name.toLowerCase() + ".first", -1L);
+    }
+
+    public long getLastSeen(String name) {
+        return getData().getLong(name.toLowerCase() + ".last", -1L);
+    }
+
+    public long getPlayTime(String name) {
+        return getData().getLong(name.toLowerCase() + ".playtime", -1L);
+    }
+
+    protected void addPlayTime(String name, long value) {
+        getData().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
+        saveData();
+    }
+
+    protected void setFirstSeen(String name, long value) {
+        getData().set(name.toLowerCase() + ".first", Long.valueOf(value));
+        saveData();
+    }
+
+    protected void setLastSeen(String name, long value) {
+        getData().set(name.toLowerCase() + ".last", Long.valueOf(value));
+        saveData();
+    }
+
+    private void reloadData() {
+        if (DataFile == null)
+            DataFile = new File(getDataFolder(), DATAFILENAME);
+        Data = YamlConfiguration.loadConfiguration(DataFile);
+
+        InputStream defData = this.getResource(DATAFILENAME);
+        if (defData != null) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defData);
+            Data.setDefaults(defConfig);
+        }
+    }
+
+    protected void removePlayer(String name) {
+        long time = (new Date()).getTime();
+        setLastSeen(name, time);
+        addPlayTime(name, time - players.get(name));
+        players.remove(name);
+    }
+
+    protected void addPlayer(String name) {
+        long last = getLastSeen(name);
+        long first = getFirstSeen(name);
+        long ex = (new Date()).getTime();
+        players.put(name, ex);
+        if (last == -1L || first == -1L) {
+            setFirstSeen(name, ex);
+            getServer().broadcastMessage(ChatColor.YELLOW + joinMsg.replace("%p", name));
+        }
+    }
+
+    private YamlConfiguration getData() {
+        if (Data == null)
+            this.reloadData();
+        return Data;
+    }
+
+    private void saveData() {
+        if (Data == null || DataFile == null)
+            return;
+        try {
+            getData().save(DataFile);
+        } catch (IOException ex) {
+            this.getLogger().log(Level.SEVERE, "Could not save config to " + DataFile, ex);
+        }
+    }
 }

@@ -26,42 +26,36 @@
  */
 package be.darnell.timetracker;
 
-import java.util.Date;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class TimeTrackerPlayerListener implements Listener {
 
-  private final TimeTracker plugin;
-  private final String joinMsg;
+    private final TimeTracker plugin;
 
-  public TimeTrackerPlayerListener(TimeTracker plugin) {
-    this.plugin = plugin;
-    joinMsg = plugin.getConfig().getString("JoinMessage");
-  }
+    public TimeTrackerPlayerListener(TimeTracker plugin) {
+        this.plugin = plugin;
 
-  @EventHandler
-  public void onPlayerQuit(PlayerQuitEvent event) {
-    long time = (new Date()).getTime();
-    String name = event.getPlayer().getName();
-    plugin.setLastSeen(name, time);
-    plugin.addPlayTime(name, time - plugin.players.get(name));
-    plugin.players.remove(name);
-  }
-
-  @EventHandler
-  public void onPlayerJoin(PlayerJoinEvent event) {
-    String name = event.getPlayer().getName();
-    long last = plugin.getLastSeen(name);
-    long first = plugin.getFirstSeen(name);
-    long ex = (new Date()).getTime();
-    plugin.players.put(name, ex);
-    if (last == -1L || first == -1L) {
-      plugin.setFirstSeen(name, ex);
-      plugin.getServer().broadcastMessage(ChatColor.YELLOW + joinMsg.replace("%p", name));
     }
-  }
+
+    @SuppressWarnings("UnusedDeclaration")
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        plugin.removePlayer(event.getPlayer().getName());
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    @EventHandler
+    public void onPlayerKick(PlayerKickEvent event) {
+        plugin.removePlayer(event.getPlayer().getName());
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        plugin.addPlayer(event.getPlayer().getName());
+    }
 }
