@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>be.darnell.timetracker</groupId>
     <artifactId>TimeTracker</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
     <name>TimeTracker</name>
     <url>http://www.github.com/cedeel/TimeTracker/</url>
     <repositories>
