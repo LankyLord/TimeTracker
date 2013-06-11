@@ -9,16 +9,16 @@ commands:
   seen: 
     description: Find when a player was last online on your server
     usage: /seen username
-    permission: simpleseen.seen
+    permission: timetracker.seen
   playtime: 
     description: See when your first login was
     usage: /playtime
     permission: timetracker.playtime
 permissions:
-  simpleseen.playtime:
+  timetracker.playtime:
     description: See your play time.
     default: true
-  simpleseen.seen:
+  timetracker.seen:
     description: See first, last and total play time.
     default: op
 
