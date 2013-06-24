@@ -47,6 +47,7 @@ public class TimeTracker extends JavaPlugin {
     private File DataFile = null;
     private static final String DATAFILENAME = "Data.yml";
     private String joinMsg;
+    private String colour;
 
     protected static String humanTime(long start, long end) {
         if (start != -1L) {
@@ -92,6 +93,8 @@ public class TimeTracker extends JavaPlugin {
         for(Player p : getServer().getOnlinePlayers()) {
             addPlayer(p.getName());
         }
+
+        colour = ChatColor.translateAlternateColorCodes('&', getConfig().getString("MessageColour", "&e"));
 
         System.out.println(this + " is now enabled.");
     }
@@ -149,7 +152,7 @@ public class TimeTracker extends JavaPlugin {
         players.put(name, ex);
         if (last == -1L || first == -1L) {
             setFirstSeen(name, ex);
-            getServer().broadcastMessage(ChatColor.YELLOW + joinMsg.replace("%p", name));
+            getServer().broadcastMessage(colour + joinMsg.replace("%p", name));
         }
     }
 
