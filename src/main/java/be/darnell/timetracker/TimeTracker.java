@@ -99,33 +99,66 @@ public class TimeTracker extends JavaPlugin {
         System.out.println(this + " is now enabled.");
     }
 
+    /**
+     * Get the time in milliseconds of the first join of a given player
+     * @param name The player to get the data from
+     * @return The time in milliseconds of the first join
+     */
     public long getFirstSeen(String name) {
         return getData().getLong(name.toLowerCase() + ".first", -1L);
     }
 
+    /**
+     * Get the time in milliseconds of the last join of a given player
+     * @param name The player to get the data from
+     * @return The time in milliseconds of the last join
+     */
     public long getLastSeen(String name) {
         return getData().getLong(name.toLowerCase() + ".last", -1L);
     }
 
+    /**
+     * Get the time a player has spent on the server
+     * @param name The player to get the data from
+     * @return The time, in milliseconds, the player has spent on the server
+     */
     public long getPlayTime(String name) {
         return getData().getLong(name.toLowerCase() + ".playtime", -1L);
     }
 
+    /**
+     * Add a specific amount of time to the player's file
+     * @param name The player to add the time to
+     * @param value The amount of time, in milliseconds, to add
+     */
     protected void addPlayTime(String name, long value) {
         getData().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
         saveData();
     }
 
+    /**
+     * Set the time a player was first seen
+     * @param name The name of the player
+     * @param value The time to be set, in milliseconds
+     */
     protected void setFirstSeen(String name, long value) {
         getData().set(name.toLowerCase() + ".first", Long.valueOf(value));
         saveData();
     }
 
+    /**
+     * Set the time a player was last seen
+     * @param name The name of the player
+     * @param value The time to be set, in milliseconds
+     */
     protected void setLastSeen(String name, long value) {
         getData().set(name.toLowerCase() + ".last", Long.valueOf(value));
         saveData();
     }
 
+    /**
+     * Reload the data file
+     */
     private void reloadData() {
         if (DataFile == null)
             DataFile = new File(getDataFolder(), DATAFILENAME);
@@ -138,6 +171,10 @@ public class TimeTracker extends JavaPlugin {
         }
     }
 
+    /**
+     * Remove a player from the list in memory
+     * @param name The player to remove
+     */
     protected void removePlayer(String name) {
         long time = (new Date()).getTime();
         setLastSeen(name, time);
@@ -145,6 +182,10 @@ public class TimeTracker extends JavaPlugin {
         players.remove(name);
     }
 
+    /**
+     * Add a player to the list in memory
+     * @param name The player to add
+     */
     protected void addPlayer(String name) {
         long last = getLastSeen(name);
         long first = getFirstSeen(name);
@@ -156,6 +197,10 @@ public class TimeTracker extends JavaPlugin {
         }
     }
 
+    /**
+     * Get the data from file
+     * @return The player data
+     */
     private YamlConfiguration getData() {
         if (Data == null)
             this.reloadData();
