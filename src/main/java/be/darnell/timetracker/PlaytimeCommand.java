@@ -26,45 +26,46 @@
  */
 package be.darnell.timetracker;
 
-import java.util.Date;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Date;
+
 public final class PlaytimeCommand implements CommandExecutor {
 
-  private final TimeTracker plugin;
+    private final TimeTracker plugin;
 
-  PlaytimeCommand(TimeTracker plugin) {
-    this.plugin = plugin;
-  }
+    PlaytimeCommand(TimeTracker plugin) {
+        this.plugin = plugin;
+    }
 
-  @Override
-  public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
-    if (cs instanceof Player) {
-      Player player = (Player) cs;
-      if (args.length < 1) {
-        long first = plugin.getFirstSeen(player.getName());
-        if (first != -1L)
-          player.sendMessage(ChatColor.YELLOW + "Your first login was "
-                  + ChatColor.GREEN + TimeTracker.humanTime(first, (new Date()).getTime())
-                  + ChatColor.YELLOW + " ago.");
-        long now = (new Date()).getTime();
-        player.sendMessage(ChatColor.YELLOW + "Current session has lasted "
-                + ChatColor.GREEN
-                + TimeTracker.humanTime(plugin.players.get(player.getName()), now));
-        player.sendMessage(ChatColor.YELLOW + "You have spent a total of "
-                + ChatColor.GREEN + TimeTracker.humanTime(0L,
-                (now - plugin.players.get(player.getName()))
-                + plugin.getPlayTime(player.getName()))
-                + ChatColor.YELLOW + " on this server.");
-      } else
-        player.sendMessage(ChatColor.RED + "Usage: /playtime");
+    @Override
+    public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
+        if (cs instanceof Player) {
+            Player player = (Player) cs;
+            if (args.length < 1) {
+                long first = plugin.getFirstSeen(player.getName());
+                if (first != -1L)
+                    player.sendMessage(ChatColor.YELLOW + "Your first login was "
+                            + ChatColor.GREEN + TimeTracker.humanTime(first, (new Date()).getTime())
+                            + ChatColor.YELLOW + " ago.");
+                long now = (new Date()).getTime();
+                player.sendMessage(ChatColor.YELLOW + "Current session has lasted "
+                        + ChatColor.GREEN
+                        + TimeTracker.humanTime(plugin.players.get(player.getName()), now));
+                player.sendMessage(ChatColor.YELLOW + "You have spent a total of "
+                        + ChatColor.GREEN + TimeTracker.humanTime(0L,
+                        (now - plugin.players.get(player.getName()))
+                                + plugin.getPlayTime(player.getName()))
+                        + ChatColor.YELLOW + " on this server.");
+            } else
+                player.sendMessage(ChatColor.RED + "Usage: /playtime");
 
-      return true;
-    } else
-      return false;
-  }
+            return true;
+        } else
+            return false;
+    }
 }
