@@ -50,8 +50,7 @@ public final class PlaytimeCommand implements CommandExecutor {
                 long first = plugin.getFirstSeen(player.getName());
                 if (first != -1L)
                     player.sendMessage(ChatColor.YELLOW + "Your first login was "
-                            + ChatColor.GREEN + TimeTracker.humanTime(first, (new Date()).getTime())
-                            + ChatColor.YELLOW + " ago.");
+                            + ChatColor.GREEN + plugin.sinceString(first, (new Date()).getTime()));
                 long now = (new Date()).getTime();
                 player.sendMessage(ChatColor.YELLOW + "Current session has lasted "
                         + ChatColor.GREEN

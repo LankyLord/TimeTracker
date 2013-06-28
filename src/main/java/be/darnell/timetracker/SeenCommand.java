@@ -55,8 +55,8 @@ public final class SeenCommand implements CommandExecutor {
                     List list = plugin.getServer().matchPlayer(playerName);
                     sender.sendMessage(ChatColor.AQUA + "===== " + ChatColor.GREEN + "Player times for " + playerName + ChatColor.AQUA + " =====");
                     if (seen != -1L)
-                        sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + TimeTracker.humanTime(plugin.getLastSeen(playerName), (new Date()).getTime()) + ChatColor.YELLOW + " ago.");
-                    sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + TimeTracker.humanTime(plugin.getFirstSeen(playerName), (new Date()).getTime()) + ChatColor.YELLOW + " ago.");
+                        sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + plugin.sinceString(plugin.getLastSeen(playerName), (new Date()).getTime()));
+                    sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + plugin.sinceString(plugin.getFirstSeen(playerName), (new Date()).getTime()));
                     sender.sendMessage(ChatColor.YELLOW + "Has spent " + ChatColor.GREEN + TimeTracker.humanTime(0L, plugin.getPlayTime(playerName)) + ChatColor.YELLOW + " on the server.");
                     if (list.size() == 1)
                         sender.sendMessage(ChatColor.GREEN + playerName + " is online right now! Say hey!");

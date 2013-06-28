@@ -35,6 +35,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,30 +44,58 @@ import java.util.logging.Level;
 public class TimeTracker extends JavaPlugin {
 
     protected Map<String, Long> players;
+
+    // File storage
     private YamlConfiguration Data = null;
     private File DataFile = null;
     private static final String DATAFILENAME = "Data.yml";
+
+    // Join message
     private String joinMsg;
     private String colour;
+
+    // Date formatting
+    private boolean alwaysDate = false;
+    private int daysBeforeDate = 30;
 
     protected static String humanTime(long start, long end) {
         if (start != -1L) {
             long finaltime = (end - start) / 1000L;
-            if (finaltime >= 86400L) {
-                String s = (finaltime >= 172800L) ? "days" : "day";
-                return (finaltime / 86400L + " " + s);
-            } else if (finaltime >= 3600L) {
-                String s = (finaltime >= 7200L) ? "hours" : "hour";
-                return (finaltime / 3600L + " " + s);
-            } else if (finaltime >= 60L) {
-                String s = (finaltime >= 120L) ? "minutes" : "minute";
-                return (finaltime / 60L + " " + s);
+            long MINUTE = 60L;
+            long HOUR = 60*MINUTE;
+            long DAY = 24*HOUR;
+
+            if (finaltime >= DAY) {
+                String s = (finaltime >= (2*DAY)) ? "days" : "day";
+                return (finaltime / DAY + " " + s);
+            } else if (finaltime >= HOUR) {
+                String s = (finaltime >= (2*HOUR)) ? "hours" : "hour";
+                return (finaltime / HOUR + " " + s);
+            } else if (finaltime >= MINUTE) {
+                String s = (finaltime >= (2*MINUTE)) ? "minutes" : "minute";
+                return (finaltime / MINUTE + " " + s);
             } else {
                 String s = (finaltime >= 2) ? "seconds" : "second";
                 return (finaltime + " " + s);
             }
         }
         return null;
+    }
+
+    private static String dateTime(long start, long end) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        Date date = new Date(end - start);
+
+        return df.format(date).toString();
+    }
+
+    protected String sinceString(long start, long end) {
+        long daysSince = (end - start) / 86400;
+
+        if(daysSince > daysBeforeDate || alwaysDate)
+            return dateTime(start, end) + "(" + humanTime(start, end) + " ago)";
+        else return humanTime(start, end) + " ago";
     }
 
     @Override
@@ -95,6 +124,9 @@ public class TimeTracker extends JavaPlugin {
         }
 
         colour = ChatColor.translateAlternateColorCodes('&', getConfig().getString("MessageColour", "&e"));
+
+        alwaysDate = getConfig().getBoolean("AlwaysDate", false);
+        daysBeforeDate = getConfig().getInt("DaysBeforeDate", 30);
 
         System.out.println(this + " is now enabled.");
     }

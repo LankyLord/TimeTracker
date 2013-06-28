@@ -1,3 +1,5 @@
 #Use %p to use the player's name
 JoinMessage: Welcome %p to the server!
 MessageColour: &e
+DaysBeforeDate: 30
+AlwaysDate: false
