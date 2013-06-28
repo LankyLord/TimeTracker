@@ -82,19 +82,19 @@ public class TimeTracker extends JavaPlugin {
         return null;
     }
 
-    private static String dateTime(long start, long end) {
+    private static String dateTime(long start) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-        Date date = new Date(end - start);
+        Date date = new Date(start);
 
         return df.format(date).toString();
     }
 
     protected String sinceString(long start, long end) {
-        long daysSince = (end - start) / 86400;
+        long daysSince = (end -start) / 86400000L;
 
         if(daysSince > daysBeforeDate || alwaysDate)
-            return dateTime(start, end) + "(" + humanTime(start, end) + " ago)";
+            return dateTime(start) + " (" + humanTime(start, end) + " ago)";
         else return humanTime(start, end) + " ago";
     }
 
