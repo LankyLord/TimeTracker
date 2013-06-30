@@ -26,6 +26,7 @@
  */
 package be.darnell.timetracker;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -101,7 +102,7 @@ public class TimeTracker extends JavaPlugin {
     @Override
     public void onDisable() {
         for (String p : players.keySet()) {
-            removePlayer(p);
+            removePlayerAsync(p);
         }
         saveData();
         System.out.println(this + " is now disabled!");
@@ -120,7 +121,7 @@ public class TimeTracker extends JavaPlugin {
 
         joinMsg = getConfig().getString("JoinMessage");
         for (Player p : getServer().getOnlinePlayers()) {
-            addPlayer(p.getName());
+            addPlayerAsync(p.getName());
         }
 
         colour = ChatColor.translateAlternateColorCodes('&', getConfig().getString("MessageColour", "&e"));
@@ -212,11 +213,16 @@ public class TimeTracker extends JavaPlugin {
      *
      * @param name The player to remove
      */
-    protected void removePlayer(String name) {
-        long time = (new Date()).getTime();
-        setLastSeen(name, time);
-        addPlayTime(name, time - players.get(name));
-        players.remove(name);
+    protected void removePlayerAsync(final String name) {
+        Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
+            @Override
+            public void run() {
+                long time = (new Date()).getTime();
+                setLastSeen(name, time);
+                addPlayTime(name, time - players.get(name));
+                players.remove(name);
+            }
+        });
     }
 
     /**
@@ -224,15 +230,20 @@ public class TimeTracker extends JavaPlugin {
      *
      * @param name The player to add
      */
-    protected void addPlayer(String name) {
-        long last = getLastSeen(name);
-        long first = getFirstSeen(name);
-        long ex = (new Date()).getTime();
-        players.put(name, ex);
-        if (last == -1L || first == -1L) {
-            setFirstSeen(name, ex);
-            getServer().broadcastMessage(colour + joinMsg.replace("%p", name));
-        }
+    protected void addPlayerAsync(final String name) {
+        Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
+            @Override
+            public void run() {
+                long last = getLastSeen(name);
+                long first = getFirstSeen(name);
+                long ex = (new Date()).getTime();
+                players.put(name, ex);
+                if (last == -1L || first == -1L) {
+                    setFirstSeen(name, ex);
+                    getServer().broadcastMessage(colour + joinMsg.replace("%p", name));
+                }
+            }
+        });
     }
 
     /**
