@@ -217,10 +217,12 @@ public class TimeTracker extends JavaPlugin {
         Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
             @Override
             public void run() {
-                long time = (new Date()).getTime();
-                setLastSeen(name, time);
-                addPlayTime(name, time - players.get(name));
-                players.remove(name);
+                if (players.containsKey(name)) {
+                    long time = (new Date()).getTime();
+                    setLastSeen(name, time);
+                    addPlayTime(name, time - players.get(name));
+                    players.remove(name);
+                }
             }
         });
     }
@@ -234,13 +236,15 @@ public class TimeTracker extends JavaPlugin {
         Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
             @Override
             public void run() {
-                long last = getLastSeen(name);
-                long first = getFirstSeen(name);
-                long ex = (new Date()).getTime();
-                players.put(name, ex);
-                if (last == -1L || first == -1L) {
-                    setFirstSeen(name, ex);
-                    getServer().broadcastMessage(colour + joinMsg.replace("%p", name));
+                if (!players.containsKey(name)) {
+                    long last = getLastSeen(name);
+                    long first = getFirstSeen(name);
+                    long ex = (new Date()).getTime();
+                    players.put(name, ex);
+                    if (last == -1L || first == -1L) {
+                        setFirstSeen(name, ex);
+                        getServer().broadcastMessage(colour + joinMsg.replace("%p", name));
+                    }
                 }
             }
         });
