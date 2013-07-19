@@ -38,13 +38,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 public class TimeTracker extends JavaPlugin {
 
-    protected Map<String, Long> players;
+    protected ConcurrentMap<String, Long> players;
 
     // File storage
     private YamlConfiguration Data = null;
@@ -88,7 +88,7 @@ public class TimeTracker extends JavaPlugin {
 
         Date date = new Date(start);
 
-        return df.format(date).toString();
+        return df.format(date);
     }
 
     protected String sinceString(long start, long end) {
@@ -101,6 +101,7 @@ public class TimeTracker extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getScheduler().cancelTasks(this);
         for (String p : players.keySet()) {
             removePlayerAsync(p);
         }
@@ -114,7 +115,7 @@ public class TimeTracker extends JavaPlugin {
         pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
         saveDefaultConfig();
         saveData();
-        players = new HashMap<String, Long>();
+        players = new ConcurrentHashMap<String, Long>();
 
         this.getCommand("seen").setExecutor(new SeenCommand(this));
         this.getCommand("playtime").setExecutor(new PlaytimeCommand(this));
