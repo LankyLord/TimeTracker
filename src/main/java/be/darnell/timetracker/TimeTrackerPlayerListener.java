@@ -50,12 +50,6 @@ public final class TimeTrackerPlayerListener implements Listener {
 
     @SuppressWarnings("UnusedDeclaration")
     @EventHandler
-    public void onPlayerKick(PlayerKickEvent event) {
-        plugin.removePlayerAsync(event.getPlayer().getName());
-    }
-
-    @SuppressWarnings("UnusedDeclaration")
-    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         plugin.addPlayerAsync(event.getPlayer().getName());
     }
