@@ -2,9 +2,9 @@ author: cedeel
 database: false
 description: Find when a player last left the server.
 main: be.darnell.timetracker.TimeTracker
-name: TimeTracker
-website: http://github.com/cedeel/TimeTracker/
-version: maven-version-number
+name: ${version}
+website: ${url}
+version: ${version}
 commands:
   seen: 
     description: Find when a player was last online on your server
