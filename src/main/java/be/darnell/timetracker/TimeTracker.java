@@ -59,25 +59,31 @@ public class TimeTracker extends JavaPlugin {
     private boolean alwaysDate = false;
     private int daysBeforeDate = 30;
 
+    /**
+     * Construct a human readable string of a duration
+     * @param start Beginning time in seconds.
+     * @param end End time in seconds
+     * @return A human readable string of a duration
+     */
     protected static String humanTime(long start, long end) {
         if (start != -1L) {
-            long finaltime = (end - start) / 1000L;
-            long MINUTE = 60L;
-            long HOUR = 60*MINUTE;
-            long DAY = 24*HOUR;
+            final long finalTime = (end - start) / 1000L;
+            final long MINUTE = 60L;
+            final long HOUR = 60*MINUTE;
+            final long DAY = 24*HOUR;
 
-            if (finaltime >= DAY) {
-                String s = (finaltime >= (2*DAY)) ? "days" : "day";
-                return (finaltime / DAY + " " + s);
-            } else if (finaltime >= HOUR) {
-                String s = (finaltime >= (2*HOUR)) ? "hours" : "hour";
-                return (finaltime / HOUR + " " + s);
-            } else if (finaltime >= MINUTE) {
-                String s = (finaltime >= (2*MINUTE)) ? "minutes" : "minute";
-                return (finaltime / MINUTE + " " + s);
+            if (finalTime >= DAY) {
+                String s = (finalTime >= (2*DAY)) ? "days" : "day";
+                return (finalTime / DAY + " " + s);
+            } else if (finalTime >= HOUR) {
+                String s = (finalTime >= (2*HOUR)) ? "hours" : "hour";
+                return (finalTime / HOUR + " " + s);
+            } else if (finalTime >= MINUTE) {
+                String s = (finalTime >= (2*MINUTE)) ? "minutes" : "minute";
+                return (finalTime / MINUTE + " " + s);
             } else {
-                String s = (finaltime >= 2) ? "seconds" : "second";
-                return (finaltime + " " + s);
+                String s = (finalTime >= 2) ? "seconds" : "second";
+                return (finalTime + " " + s);
             }
         }
         return null;
@@ -103,10 +109,10 @@ public class TimeTracker extends JavaPlugin {
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
         for (String p : players.keySet()) {
-            removePlayerAsync(p);
+            removePlayer(p);
         }
         saveData();
-        System.out.println(this + " is now disabled!");
+        this.getLogger().info("Disabled successfully");
     }
 
     @Override
@@ -130,7 +136,7 @@ public class TimeTracker extends JavaPlugin {
         alwaysDate = getConfig().getBoolean("AlwaysDate", false);
         daysBeforeDate = getConfig().getInt("DaysBeforeDate", 30);
 
-        System.out.println(this + " is now enabled.");
+        this.getLogger().info("All good. Loaded successfully");
     }
 
     /**
@@ -218,14 +224,18 @@ public class TimeTracker extends JavaPlugin {
         Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
             @Override
             public void run() {
-                if (players.containsKey(name)) {
-                    long time = (new Date()).getTime();
-                    setLastSeen(name, time);
-                    addPlayTime(name, time - players.get(name));
-                    players.remove(name);
-                }
+                removePlayer(name);
             }
         });
+    }
+
+    private void removePlayer(String name) {
+        if (players.containsKey(name)) {
+            long time = (new Date()).getTime();
+            setLastSeen(name, time);
+            addPlayTime(name, time - players.get(name));
+            players.remove(name);
+        }
     }
 
     /**
