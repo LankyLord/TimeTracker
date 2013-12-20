@@ -27,10 +27,9 @@
 package be.darnell.timetracker;
 
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class TimeTrackerPlayerListener implements Listener {
@@ -43,13 +42,13 @@ public final class TimeTrackerPlayerListener implements Listener {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    @EventHandler
+    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
         plugin.removePlayerAsync(event.getPlayer().getName());
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    @EventHandler
+    @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
         plugin.addPlayerAsync(event.getPlayer().getName());
     }
