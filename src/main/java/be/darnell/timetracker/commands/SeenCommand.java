@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 cedeel.
+ * Copyright (c) 2013 - 2014 cedeel.
  * All rights reserved.
  * 
  *
@@ -24,8 +24,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package be.darnell.timetracker.commands;
 
+import be.darnell.timetracker.TimeTracker;
+import be.darnell.timetracker.TrackedPlayer;
+import be.darnell.timetracker.Util;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,28 +40,28 @@ import java.util.List;
 
 public final class SeenCommand implements CommandExecutor {
 
-    private final TimeTracker plugin;
+    private final TimeTracker tracker;
 
-    SeenCommand(TimeTracker plugin) {
-        this.plugin = plugin;
+    public SeenCommand(TimeTracker tracker) {
+        this.tracker = tracker;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmnd, String alias, String[] args) {
         if (args.length > 0) {
             String playerName = args[0].toLowerCase();
-            long first = plugin.getFirstSeen(playerName);
-            long seen = plugin.getLastSeen(playerName);
-            if (first != -1L)
+            TrackedPlayer tracked = tracker.getPlayer(playerName);
+
+            if (tracked.getFirstJoined() != Util.UNINITIALISED_TIME)
                 if (playerName.equalsIgnoreCase(sender.getName().toLowerCase()))
                     sender.sendMessage(ChatColor.YELLOW + "Still trying to find yourself, bud?");
                 else {
-                    List list = plugin.getServer().matchPlayer(playerName);
+                    List list = Bukkit.getServer().matchPlayer(playerName);
                     sender.sendMessage(ChatColor.AQUA + "===== " + ChatColor.GREEN + "Player times for " + playerName + ChatColor.AQUA + " =====");
-                    if (seen != -1L)
-                        sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + plugin.sinceString(plugin.getLastSeen(playerName), (new Date()).getTime()));
-                    sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + plugin.sinceString(plugin.getFirstSeen(playerName), (new Date()).getTime()));
-                    sender.sendMessage(ChatColor.YELLOW + "Has spent " + ChatColor.GREEN + TimeTracker.humanTime(0L, plugin.getPlayTime(playerName)) + ChatColor.YELLOW + " on the server.");
+                    if (tracked.getLastSeen() != Util.UNINITIALISED_TIME)
+                        sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + tracker.sinceString(tracked.getLastSeen(), (new Date()).getTime()));
+                    sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + tracker.sinceString(tracked.getFirstJoined(), (new Date()).getTime()));
+                    sender.sendMessage(ChatColor.YELLOW + "Has spent " + ChatColor.GREEN + Util.humanTime(0L, tracked.getPlaytime()) + ChatColor.YELLOW + " on the server.");
                     if (list.size() == 1)
                         sender.sendMessage(ChatColor.GREEN + playerName + " is online right now! Say hey!");
                 }

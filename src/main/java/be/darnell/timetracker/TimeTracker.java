@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 cedeel.
+ * Copyright (c) 2013 - 2014 cedeel.
  * All rights reserved.
  * 
  *
@@ -26,67 +26,32 @@
  */
 package be.darnell.timetracker;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import be.darnell.timetracker.storage.FileStorage;
+import be.darnell.timetracker.storage.Storage;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
 
-public class TimeTracker extends JavaPlugin {
+public class TimeTracker {
 
-    protected ConcurrentMap<String, Long> players;
-
+    // In-memory set of logged in players
+    private ConcurrentMap<String, TrackedPlayer> players;
     // File storage
-    private YamlConfiguration Data = null;
-    private File DataFile = null;
-    private static final String DATAFILENAME = "Data.yml";
-
-    // Join message
-    private String joinMsg;
-    private String colour;
-
+    private Storage storage;
     // Date formatting
     private boolean alwaysDate = false;
     private int daysBeforeDate = 30;
 
-    /**
-     * Construct a human readable string of a duration
-     * @param start Beginning time in seconds.
-     * @param end End time in seconds
-     * @return A human readable string of a duration
-     */
-    protected static String humanTime(long start, long end) {
-        if (start != -1L) {
-            final long finalTime = (end - start) / 1000L;
-            final long MINUTE = 60L;
-            final long HOUR = 60*MINUTE;
-            final long DAY = 24*HOUR;
+    public TimeTracker(Plugin plugin) {
+        // TODO: Change storage
+        storage = new FileStorage(plugin.getDataFolder());
+        players = new ConcurrentHashMap<String, TrackedPlayer>();
+        storage.saveData();
 
-            if (finalTime >= DAY) {
-                String s = (finalTime >= (2*DAY)) ? "days" : "day";
-                return (finalTime / DAY + " " + s);
-            } else if (finalTime >= HOUR) {
-                String s = (finalTime >= (2*HOUR)) ? "hours" : "hour";
-                return (finalTime / HOUR + " " + s);
-            } else if (finalTime >= MINUTE) {
-                String s = (finalTime >= (2*MINUTE)) ? "minutes" : "minute";
-                return (finalTime / MINUTE + " " + s);
-            } else {
-                String s = (finalTime >= 2) ? "seconds" : "second";
-                return (finalTime + " " + s);
-            }
-        }
-        return null;
+        alwaysDate = plugin.getConfig().getBoolean("AlwaysDate", false);
+        daysBeforeDate = plugin.getConfig().getInt("DaysBeforeDate", 30);
     }
 
     private static String dateTime(long start) {
@@ -97,188 +62,69 @@ public class TimeTracker extends JavaPlugin {
         return df.format(date);
     }
 
-    protected String sinceString(long start, long end) {
+    public String sinceString(long start, long end) {
         long daysSince = (end -start) / 86400000L;
 
-        if(daysSince > daysBeforeDate || alwaysDate)
-            return dateTime(start) + " (" + humanTime(start, end) + " ago)";
-        else return humanTime(start, end) + " ago";
+        if (daysSince > daysBeforeDate || alwaysDate)
+            return dateTime(start) + " (" + Util.humanTime(start, end) + " ago)";
+        else return Util.humanTime(start, end) + " ago";
     }
 
-    @Override
-    public void onDisable() {
-        Bukkit.getScheduler().cancelTasks(this);
-        for (String p : players.keySet()) {
+    protected void addPlayer(final String name) {
+        if (!getPlayers().containsKey(name)) {
+            TrackedPlayer player = storage.getPlayer(name);
+            long time = (new Date()).getTime();
+            if (player.getLastSeen() == Util.UNINITIALISED_TIME || player.getFirstJoined() == Util.UNINITIALISED_TIME) {
+                getPlayers().put(player.getPlayerName(), new TrackedPlayer(player.getPlayerName(), time, time, player.getPlaytime()));
+            } else {
+                getPlayers().put(player.getPlayerName(), new TrackedPlayer(player.getPlayerName(), player.getFirstJoined(), time, player.getPlaytime()));
+            }
+        }
+    }
+
+    protected boolean isFirstSession(final String name) {
+        TrackedPlayer target = getPlayer(name);
+        return target.getFirstJoined() == target.getLastSeen();
+    }
+
+    protected boolean removePlayer(final String name) {
+        TrackedPlayer tracked = players.get(name);
+        if (tracked != null) {
+            long time = (new Date()).getTime();
+            long playtime = (time - tracked.getLastSeen()) + tracked.getPlaytime();
+            storage.pushPlayer(new TrackedPlayer(tracked.getPlayerName(), tracked.getFirstJoined(), time, playtime));
+            getPlayers().remove(name);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Retrieve a player
+     * @param name Name of the player
+     * @return Tracked player
+     */
+    public TrackedPlayer getPlayer(String name) {
+        if (players.containsKey(name)) {
+            return players.get(name);
+        } else {
+            return storage.getPlayer(name);
+        }
+    }
+
+    /**
+     * Get the list of players
+     *
+     * @return Get the list of players
+     */
+    public ConcurrentMap<String, TrackedPlayer> getPlayers() {
+        return players;
+    }
+
+    public void shutDown() {
+        for (String p : getPlayers().keySet()) {
             removePlayer(p);
         }
-        saveData();
-        this.getLogger().info("Disabled successfully");
-    }
-
-    @Override
-    public void onEnable() {
-        PluginManager pluginManager = this.getServer().getPluginManager();
-        pluginManager.registerEvents(new TimeTrackerPlayerListener(this), this);
-        saveDefaultConfig();
-        saveData();
-        players = new ConcurrentHashMap<String, Long>();
-
-        this.getCommand("seen").setExecutor(new SeenCommand(this));
-        this.getCommand("playtime").setExecutor(new PlaytimeCommand(this));
-
-        joinMsg = getConfig().getString("JoinMessage");
-        for (Player p : getServer().getOnlinePlayers()) {
-            addPlayerAsync(p.getName());
-        }
-
-        colour = ChatColor.translateAlternateColorCodes('&', getConfig().getString("MessageColour", "&e"));
-
-        alwaysDate = getConfig().getBoolean("AlwaysDate", false);
-        daysBeforeDate = getConfig().getInt("DaysBeforeDate", 30);
-
-        this.getLogger().info("All good. Loaded successfully");
-    }
-
-    /**
-     * Get the time in milliseconds of the first join of a given player
-     *
-     * @param name The player to get the data from
-     * @return The time in milliseconds of the first join
-     */
-    public long getFirstSeen(String name) {
-        return getData().getLong(name.toLowerCase() + ".first", -1L);
-    }
-
-    /**
-     * Get the time in milliseconds of the last join of a given player
-     *
-     * @param name The player to get the data from
-     * @return The time in milliseconds of the last join
-     */
-    public long getLastSeen(String name) {
-        return getData().getLong(name.toLowerCase() + ".last", -1L);
-    }
-
-    /**
-     * Get the time a player has spent on the server
-     *
-     * @param name The player to get the data from
-     * @return The time, in milliseconds, the player has spent on the server
-     */
-    public long getPlayTime(String name) {
-        return getData().getLong(name.toLowerCase() + ".playtime", -1L);
-    }
-
-    /**
-     * Add a specific amount of time to the player's file
-     *
-     * @param name  The player to add the time to
-     * @param value The amount of time, in milliseconds, to add
-     */
-    protected void addPlayTime(String name, long value) {
-        getData().set(name.toLowerCase() + ".playtime", Long.valueOf(getPlayTime(name) + value));
-        saveData();
-    }
-
-    /**
-     * Set the time a player was first seen
-     *
-     * @param name  The name of the player
-     * @param value The time to be set, in milliseconds
-     */
-    protected void setFirstSeen(String name, long value) {
-        getData().set(name.toLowerCase() + ".first", Long.valueOf(value));
-        saveData();
-    }
-
-    /**
-     * Set the time a player was last seen
-     *
-     * @param name  The name of the player
-     * @param value The time to be set, in milliseconds
-     */
-    protected void setLastSeen(String name, long value) {
-        getData().set(name.toLowerCase() + ".last", Long.valueOf(value));
-        saveData();
-    }
-
-    /** Reload the data file */
-    private void reloadData() {
-        if (DataFile == null)
-            DataFile = new File(getDataFolder(), DATAFILENAME);
-        Data = YamlConfiguration.loadConfiguration(DataFile);
-
-        InputStream defData = this.getResource(DATAFILENAME);
-        if (defData != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defData);
-            Data.setDefaults(defConfig);
-        }
-    }
-
-    /**
-     * Remove a player from the list in memory
-     *
-     * @param name The player to remove
-     */
-    protected void removePlayerAsync(final String name) {
-        Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
-            @Override
-            public void run() {
-                removePlayer(name);
-            }
-        });
-    }
-
-    private void removePlayer(String name) {
-        if (players.containsKey(name)) {
-            long time = (new Date()).getTime();
-            setLastSeen(name, time);
-            addPlayTime(name, time - players.get(name));
-            players.remove(name);
-        }
-    }
-
-    /**
-     * Add a player to the list in memory
-     *
-     * @param name The player to add
-     */
-    protected void addPlayerAsync(final String name) {
-        Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
-            @Override
-            public void run() {
-                if (!players.containsKey(name)) {
-                    long last = getLastSeen(name);
-                    long first = getFirstSeen(name);
-                    long ex = (new Date()).getTime();
-                    players.put(name, ex);
-                    if (last == -1L || first == -1L) {
-                        setFirstSeen(name, ex);
-                        getServer().broadcastMessage(colour + joinMsg.replace("%p", name));
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Get the data from file
-     *
-     * @return The player data
-     */
-    private YamlConfiguration getData() {
-        if (Data == null)
-            this.reloadData();
-        return Data;
-    }
-
-    private void saveData() {
-        if (Data == null || DataFile == null)
-            return;
-        try {
-            getData().save(DataFile);
-        } catch (IOException ex) {
-            this.getLogger().log(Level.SEVERE, "Could not save config to " + DataFile, ex);
-        }
+        storage.saveData();
     }
 }

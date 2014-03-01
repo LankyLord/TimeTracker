@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 cedeel.
+ * Copyright (c) 2013 - 2014 cedeel.
  * All rights reserved.
  * 
  *
@@ -24,8 +24,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package be.darnell.timetracker.commands;
 
+import be.darnell.timetracker.TimeTracker;
+import be.darnell.timetracker.TrackedPlayer;
+import be.darnell.timetracker.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,29 +39,31 @@ import java.util.Date;
 
 public final class PlaytimeCommand implements CommandExecutor {
 
-    private final TimeTracker plugin;
+    private final TimeTracker tracker;
 
-    PlaytimeCommand(TimeTracker plugin) {
-        this.plugin = plugin;
+    public PlaytimeCommand(TimeTracker tracker) {
+        this.tracker = tracker;
     }
 
     @Override
     public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
         if (cs instanceof Player) {
             Player player = (Player) cs;
+            TrackedPlayer tracked = tracker.getPlayer(player.getName());
             if (args.length < 1) {
-                long first = plugin.getFirstSeen(player.getName());
-                if (first != -1L)
+                long first = tracked.getFirstJoined();
+                if (first != Util.UNINITIALISED_TIME) {
                     player.sendMessage(ChatColor.YELLOW + "Your first login was "
-                            + ChatColor.GREEN + plugin.sinceString(first, (new Date()).getTime()));
+                            + ChatColor.GREEN + tracker.sinceString(first, (new Date()).getTime()));
+                }
                 long now = (new Date()).getTime();
                 player.sendMessage(ChatColor.YELLOW + "Current session has lasted "
                         + ChatColor.GREEN
-                        + TimeTracker.humanTime(plugin.players.get(player.getName()), now));
+                        + Util.humanTime(tracked.getLastSeen(), now));
                 player.sendMessage(ChatColor.YELLOW + "You have spent a total of "
-                        + ChatColor.GREEN + TimeTracker.humanTime(0L,
-                        (now - plugin.players.get(player.getName()))
-                                + plugin.getPlayTime(player.getName()))
+                        + ChatColor.GREEN + Util.humanTime(0L,
+                        (now - tracked.getLastSeen())
+                                + tracked.getPlaytime())
                         + ChatColor.YELLOW + " on this server.");
             } else
                 player.sendMessage(ChatColor.RED + "Usage: /playtime");
