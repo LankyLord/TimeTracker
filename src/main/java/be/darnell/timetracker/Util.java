@@ -27,6 +27,7 @@
 package be.darnell.timetracker;
 
 public class Util {
+    public final static long UNINITIALISED_TIME = -1L;
 
     /**
      * Construct a human readable string of a duration
@@ -65,6 +66,4 @@ public class Util {
         }
         return null;
     }
-
-    public final static long UNINITIALISED_TIME = -1L;
 }
