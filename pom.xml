@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>be.darnell.timetracker</groupId>
     <artifactId>TimeTracker</artifactId>
-    <version>2.1</version>
+    <version>3.0</version>
     <name>TimeTracker</name>
     <url>http://www.github.com/cedeel/TimeTracker/</url>
     <repositories>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.7.2-R0.3</version>
+            <version>1.7.9-R0.2</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>

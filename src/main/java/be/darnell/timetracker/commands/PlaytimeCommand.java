@@ -36,6 +36,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Date;
+import java.util.UUID;
 
 public final class PlaytimeCommand implements CommandExecutor {
 
@@ -49,7 +50,7 @@ public final class PlaytimeCommand implements CommandExecutor {
     public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
         if (cs instanceof Player) {
             Player player = (Player) cs;
-            TrackedPlayer tracked = tracker.getPlayer(player.getName());
+            TrackedPlayer tracked = tracker.getPlayer(player.getUniqueId());
             if (args.length < 1) {
                 long first = tracked.getFirstJoined();
                 if (first != Util.UNINITIALISED_TIME) {

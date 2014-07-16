@@ -37,6 +37,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public final class SeenCommand implements CommandExecutor {
 
@@ -50,7 +51,8 @@ public final class SeenCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmnd, String alias, String[] args) {
         if (args.length > 0) {
             String playerName = args[0].toLowerCase();
-            TrackedPlayer tracked = tracker.getPlayer(playerName);
+            // FIXME: Don't look people up by UUID. Too cumbersome.
+            TrackedPlayer tracked = tracker.getPlayer(UUID.fromString(playerName));
 
             if (tracked.getFirstJoined() != Util.UNINITIALISED_TIME)
                 if (playerName.equalsIgnoreCase(sender.getName().toLowerCase()))

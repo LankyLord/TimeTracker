@@ -26,19 +26,21 @@
  */
 package be.darnell.timetracker;
 
+import java.util.UUID;
+
 public class TrackedPlayer {
     private long firstJoined, lastSeen, playtime;
-    private String name;
+    private UUID id;
 
     /**
      * A player that is tracked by this plugin
-     * @param name The username of the player
+     * @param id The UUID of the player
      * @param firstJoined The time, in milliseconds, of their first join
      * @param lastSeen The time, in milliseconds, of when they last left the server
      * @param playtime The total play time of the player
      */
-    public TrackedPlayer(String name, long firstJoined, long lastSeen, long playtime) {
-        this.name = name.toLowerCase();
+    public TrackedPlayer(UUID id, long firstJoined, long lastSeen, long playtime) {
+        this.id = id;
         this.firstJoined = firstJoined;
         this.lastSeen = lastSeen;
         this.playtime = playtime;
@@ -68,16 +70,24 @@ public class TrackedPlayer {
         return playtime;
     }
 
+//    /**
+//     * Get the name of the player
+//     * @return The name of the player
+//     */
+//    public String getPlayerName() {
+//        return name;
+//    }
+
     /**
-     * Get the name of the player
-     * @return The name of the player
+     * Get the UUID of the player
+     * @return The UUID of the player
      */
-    public String getPlayerName() {
-        return name;
+    public UUID getPlayerID() {
+        return id;
     }
 
-    @Override
-    public String toString(){
-        return name;
-    }
+//    @Override
+//    public String toString(){
+//        return name;
+//    }
 }

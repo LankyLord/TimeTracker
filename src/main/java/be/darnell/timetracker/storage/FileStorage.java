@@ -33,6 +33,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * An implementation of storage to YAML file.
@@ -42,7 +43,7 @@ public class FileStorage implements Storage {
     private File dataFolder;
     private YamlConfiguration Data = null;
     private File DataFile = null;
-    private static final String DATAFILENAME = "Data.yml";
+    private static final String DATAFILENAME = "playertimes.yml";
 
     // Configuration section names
     private static final String FIRST_JOIN = "first";
@@ -89,21 +90,20 @@ public class FileStorage implements Storage {
     }
 
     @Override
-    public TrackedPlayer getPlayer(String name) {
+    public TrackedPlayer getPlayer(UUID id) {
         TrackedPlayer result;
-        String lookupName = name.toLowerCase();
-        if (this.getData().isConfigurationSection(lookupName)) {
-            ConfigurationSection section = this.getData().getConfigurationSection(lookupName);
-            result = new TrackedPlayer(lookupName, section.getLong(FIRST_JOIN), section.getLong(LAST_SEEN), section.getLong(PLAYTIME));
+        if (this.getData().isConfigurationSection(id.toString())) {
+            ConfigurationSection section = this.getData().getConfigurationSection(id.toString());
+            result = new TrackedPlayer(id, section.getLong(FIRST_JOIN), section.getLong(LAST_SEEN), section.getLong(PLAYTIME));
         } else {
-            result = new TrackedPlayer(lookupName, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME);
+            result = new TrackedPlayer(id, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME);
         }
         return result;
     }
 
     @Override
     public boolean pushPlayer(TrackedPlayer player) {
-        ConfigurationSection section = getData().createSection(player.getPlayerName());
+        ConfigurationSection section = getData().createSection(player.getPlayerID().toString());
         section.set(FIRST_JOIN, player.getFirstJoined());
         section.set(LAST_SEEN, player.getLastSeen());
         section.set(PLAYTIME, player.getPlaytime());

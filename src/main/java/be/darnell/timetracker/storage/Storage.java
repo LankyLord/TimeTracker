@@ -28,6 +28,8 @@ package be.darnell.timetracker.storage;
 
 import be.darnell.timetracker.TrackedPlayer;
 
+import java.util.UUID;
+
 /**
  * A common way to store tracked players to various places.
  */
@@ -45,7 +47,7 @@ public interface Storage {
      * @param name Name of the player to look up
      * @return The tracked player data corresponding
      */
-    public TrackedPlayer getPlayer(String name);
+    public TrackedPlayer getPlayer(UUID id);
 
     /**
      * Push a player to storage, overwriting existing data if necessary.
