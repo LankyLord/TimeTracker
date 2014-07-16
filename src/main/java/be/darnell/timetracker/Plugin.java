@@ -94,7 +94,7 @@ public class Plugin extends JavaPlugin {
             @Override
             public void run() {
                 tracker.addPlayer(name);
-                if (tracker.isFirstSession(name)) {
+                if (tracker.isFirstSession(name.toLowerCase())) {
                     Bukkit.getServer().broadcastMessage(joinMsg.replace("%p", name));
                 }
             }

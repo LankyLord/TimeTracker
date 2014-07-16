@@ -45,7 +45,7 @@ public final class TimeTrackerPlayerListener implements Listener {
     @SuppressWarnings("UnusedDeclaration")
     @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.removePlayerAsync(event.getPlayer().getName());
+        plugin.removePlayerAsync(event.getPlayer().getName().toLowerCase());
     }
 
     @SuppressWarnings("UnusedDeclaration")

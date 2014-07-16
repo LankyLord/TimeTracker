@@ -91,11 +91,12 @@ public class FileStorage implements Storage {
     @Override
     public TrackedPlayer getPlayer(String name) {
         TrackedPlayer result;
-        if (this.getData().isConfigurationSection(name.toLowerCase())) {
-            ConfigurationSection section = this.getData().getConfigurationSection(name.toLowerCase());
-            result = new TrackedPlayer(name.toLowerCase(), section.getLong(FIRST_JOIN), section.getLong(LAST_SEEN), section.getLong(PLAYTIME));
+        String lookupName = name.toLowerCase();
+        if (this.getData().isConfigurationSection(lookupName)) {
+            ConfigurationSection section = this.getData().getConfigurationSection(lookupName);
+            result = new TrackedPlayer(lookupName, section.getLong(FIRST_JOIN), section.getLong(LAST_SEEN), section.getLong(PLAYTIME));
         } else {
-            result = new TrackedPlayer(name.toLowerCase(), Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME);
+            result = new TrackedPlayer(lookupName, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME);
         }
         return result;
     }

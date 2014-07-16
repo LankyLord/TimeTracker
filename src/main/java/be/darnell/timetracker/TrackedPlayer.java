@@ -38,7 +38,7 @@ public class TrackedPlayer {
      * @param playtime The total play time of the player
      */
     public TrackedPlayer(String name, long firstJoined, long lastSeen, long playtime) {
-        this.name = name;
+        this.name = name.toLowerCase();
         this.firstJoined = firstJoined;
         this.lastSeen = lastSeen;
         this.playtime = playtime;
