@@ -106,11 +106,14 @@ public class TimeTracker {
      * @return Tracked player
      */
     public TrackedPlayer getPlayer(UUID id) {
-        if (players.containsKey(id)) {
-            return players.get(id);
-        } else {
-            return storage.getPlayer(id);
+        if (id != null) {
+            if (players.containsKey(id)) {
+                return players.get(id);
+            } else {
+                return storage.getPlayer(id);
+            }
         }
+        return null;
     }
 
     /**

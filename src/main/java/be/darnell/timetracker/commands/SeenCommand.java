@@ -29,16 +29,12 @@ package be.darnell.timetracker.commands;
 import be.darnell.timetracker.TimeTracker;
 import be.darnell.timetracker.TrackedPlayer;
 import be.darnell.timetracker.Util;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Server;
+import static org.bukkit.ChatColor.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-
-import java.util.*;
-
-import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -48,6 +44,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public final class SeenCommand implements CommandExecutor {
@@ -62,30 +59,33 @@ public final class SeenCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmnd, String alias, String[] args) {
         if (args.length > 0) {
             String playerName = args[0];
-            // FIXME: Don't look people up by UUID. Too cumbersome.
-            UUID playerId = null;
+            UUID playerId;
             try {
                 playerId = UUIDFetcher.getUUIDOf(playerName);
                 playerName = UUIDFetcher.getNameOf(playerName);
-            } catch ( Exception e ) { return false; }
+            } catch (Exception e) {
+                return false;
+            }
             TrackedPlayer tracked = tracker.getPlayer(playerId);
+            if (tracked != null) {
+                if (tracked.getFirstJoined() != Util.UNINITIALISED_TIME)
+                    if (playerName.equalsIgnoreCase(sender.getName().toLowerCase()))
+                        sender.sendMessage(YELLOW + "Still trying to find yourself, bud?");
+                    else {
+                        sender.sendMessage(AQUA + "===== " + GREEN + "Player times for " + playerName + AQUA + " =====");
+                        if (tracked.getLastSeen() != Util.UNINITIALISED_TIME)
+                            sender.sendMessage(YELLOW + "Last seen " + GREEN + tracker.sinceString(tracked.getLastSeen(), (new Date()).getTime()));
+                        sender.sendMessage(YELLOW + "First logon was " + GREEN + tracker.sinceString(tracked.getFirstJoined(), (new Date()).getTime()));
+                        sender.sendMessage(YELLOW + "Has spent " + GREEN + Util.humanTime(0L, tracked.getPlaytime()) + YELLOW + " on the server.");
+                        if (Bukkit.getOfflinePlayer(playerId).isOnline())
+                            sender.sendMessage(GREEN + playerName + " is online right now! Say hey!");
+                    }
 
-            if (tracked.getFirstJoined() != Util.UNINITIALISED_TIME)
-                if (playerName.equalsIgnoreCase(sender.getName().toLowerCase()))
-                    sender.sendMessage(ChatColor.YELLOW + "Still trying to find yourself, bud?");
-                else {
-                    sender.sendMessage(ChatColor.AQUA + "===== " + ChatColor.GREEN + "Player times for " + playerName + ChatColor.AQUA + " =====");
-                    if (tracked.getLastSeen() != Util.UNINITIALISED_TIME)
-                        sender.sendMessage(ChatColor.YELLOW + "Last seen " + ChatColor.GREEN + tracker.sinceString(tracked.getLastSeen(), (new Date()).getTime()));
-                    sender.sendMessage(ChatColor.YELLOW + "First logon was " + ChatColor.GREEN + tracker.sinceString(tracked.getFirstJoined(), (new Date()).getTime()));
-                    sender.sendMessage(ChatColor.YELLOW + "Has spent " + ChatColor.GREEN + Util.humanTime(0L, tracked.getPlaytime()) + ChatColor.YELLOW + " on the server.");
-                    if (Bukkit.getOfflinePlayer(playerId).isOnline())
-                        sender.sendMessage(ChatColor.GREEN + playerName + " is online right now! Say hey!");
-                }
-            else
-                sender.sendMessage(ChatColor.YELLOW + playerName + " has never been here before.");
+                sender.sendMessage(YELLOW + playerName + " has never been here before.");
+            }
+            sender.sendMessage(RED + "Sorry bud, " + args[0] + " is not a Minecraft account. Did you make a typo?");
         } else
-            sender.sendMessage(ChatColor.RED + "Usage: /seen <username>");
+            sender.sendMessage(RED + "Usage: /seen <username>");
 
         return true;
     }
@@ -148,7 +148,7 @@ class UUIDFetcher implements Callable<Map<String, UUID>> {
     }
 
     private static UUID getUUID(String id) {
-        return UUID.fromString(id.substring(0, 8) + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" +id.substring(20, 32));
+        return UUID.fromString(id.substring(0, 8) + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" + id.substring(20, 32));
     }
 
     public static byte[] toBytes(UUID uuid) {
@@ -175,7 +175,7 @@ class UUIDFetcher implements Callable<Map<String, UUID>> {
     public static String getNameOf(String name) throws Exception {
         Map<String, UUID> results = new UUIDFetcher(Arrays.asList(name)).call();
         String result = null;
-        for( Map.Entry<String, UUID> entry : results.entrySet()) {
+        for (Map.Entry<String, UUID> entry : results.entrySet()) {
             if (entry.getKey().equalsIgnoreCase(name))
                 result = entry.getKey();
         }
