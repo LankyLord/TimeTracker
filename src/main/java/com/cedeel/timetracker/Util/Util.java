@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.cedeel.timetracker;
+package com.cedeel.timetracker.Util;
 
 public class Util {
     public final static long UNINITIALISED_TIME = -1L;

@@ -28,7 +28,7 @@ package com.cedeel.timetracker.commands;
 
 import com.cedeel.timetracker.TimeTracker;
 import com.cedeel.timetracker.TrackedPlayer;
-import com.cedeel.timetracker.Util;
+import com.cedeel.timetracker.Util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
