@@ -121,7 +121,7 @@ class Converter {
 
     Converter(File path) {
         file = new File(path, "Data.yml");
-        nfile = new File(path, "playerdata.yml");
+        nfile = new File(path, "playertimes.yml");
     }
 
     YamlConfiguration convert() {
@@ -144,12 +144,12 @@ class Converter {
                     se.set("last", config.get(key + ".last"));
                     se.set("playtime", config.get(key + ".playtime"));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("User not found: " + key);;
                 }
             }
             try {
                 result.save(nfile);
-                Files.move(file, new File(file, ".bak"));
+                Files.move(file, new File(file.toString() + ".bak"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

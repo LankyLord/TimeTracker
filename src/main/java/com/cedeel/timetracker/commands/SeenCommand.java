@@ -71,8 +71,8 @@ public final class SeenCommand implements CommandExecutor {
                         if (Bukkit.getOfflinePlayer(playerId).isOnline())
                             sender.sendMessage(GREEN + playerName + " is online right now! Say hey!");
                     }
-
-                sender.sendMessage(YELLOW + playerName + " has never been here before.");
+                else
+                    sender.sendMessage(YELLOW + playerName + " has never been here before.");
             } else
                 sender.sendMessage(RED + "Sorry bud, " + args[0] + " is not a Minecraft account. Did you make a typo?");
         } else
