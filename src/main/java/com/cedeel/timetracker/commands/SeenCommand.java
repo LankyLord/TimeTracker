@@ -24,11 +24,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker.commands;
+package com.cedeel.timetracker.commands;
 
-import be.darnell.timetracker.TimeTracker;
-import be.darnell.timetracker.TrackedPlayer;
-import be.darnell.timetracker.Util;
+import com.cedeel.timetracker.TimeTracker;
+import com.cedeel.timetracker.TrackedPlayer;
+import com.cedeel.timetracker.Util;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Bukkit;
 import static org.bukkit.ChatColor.*;
@@ -82,8 +82,8 @@ public final class SeenCommand implements CommandExecutor {
                     }
 
                 sender.sendMessage(YELLOW + playerName + " has never been here before.");
-            }
-            sender.sendMessage(RED + "Sorry bud, " + args[0] + " is not a Minecraft account. Did you make a typo?");
+            } else
+                sender.sendMessage(RED + "Sorry bud, " + args[0] + " is not a Minecraft account. Did you make a typo?");
         } else
             sender.sendMessage(RED + "Usage: /seen <username>");
 

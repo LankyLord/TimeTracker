@@ -24,10 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker.storage;
+package com.cedeel.timetracker.storage;
 
-import be.darnell.timetracker.TrackedPlayer;
-import be.darnell.timetracker.Util;
+import com.cedeel.timetracker.TrackedPlayer;
+import com.cedeel.timetracker.Util;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -78,6 +78,7 @@ public class FileStorage implements Storage {
             return true;
         } catch (IOException ex) {
             //instance.getLogger().log(Level.SEVERE, "Could not save config to " + DataFile, ex);
+
             return false;
         }
     }

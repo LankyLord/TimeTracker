@@ -24,10 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker;
 
-import be.darnell.timetracker.storage.FileStorage;
-import be.darnell.timetracker.storage.Storage;
+import com.cedeel.timetracker.storage.FileStorage;
+import com.cedeel.timetracker.storage.Storage;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

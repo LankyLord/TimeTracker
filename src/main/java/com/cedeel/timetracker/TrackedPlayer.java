@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker;
 
 import java.util.UUID;
 
@@ -70,14 +70,6 @@ public class TrackedPlayer {
         return playtime;
     }
 
-//    /**
-//     * Get the name of the player
-//     * @return The name of the player
-//     */
-//    public String getPlayerName() {
-//        return name;
-//    }
-
     /**
      * Get the UUID of the player
      * @return The UUID of the player
@@ -85,9 +77,4 @@ public class TrackedPlayer {
     public UUID getPlayerID() {
         return id;
     }
-
-//    @Override
-//    public String toString(){
-//        return name;
-//    }
 }

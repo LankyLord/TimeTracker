@@ -1,7 +1,7 @@
 author: cedeel
 database: false
 description: Find when a player last left the server.
-main: be.darnell.timetracker.Plugin
+main: com.cedeel.timetracker.Plugin
 name: ${name}
 website: ${url}
 version: ${version}

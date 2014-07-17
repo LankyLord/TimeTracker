@@ -24,11 +24,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker;
 
-import be.darnell.timetracker.commands.PlaytimeCommand;
-import be.darnell.timetracker.commands.SeenCommand;
-import be.darnell.timetracker.listeners.TimeTrackerPlayerListener;
+import com.cedeel.timetracker.commands.PlaytimeCommand;
+import com.cedeel.timetracker.commands.SeenCommand;
+import com.cedeel.timetracker.listeners.TimeTrackerPlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -36,9 +36,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Plugin extends JavaPlugin {
     private TimeTracker tracker;
