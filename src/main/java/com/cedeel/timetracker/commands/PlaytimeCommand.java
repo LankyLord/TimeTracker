@@ -24,11 +24,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker.commands;
+package com.cedeel.timetracker.commands;
 
-import be.darnell.timetracker.TimeTracker;
-import be.darnell.timetracker.TrackedPlayer;
-import be.darnell.timetracker.Util;
+import com.cedeel.timetracker.TimeTracker;
+import com.cedeel.timetracker.TrackedPlayer;
+import com.cedeel.timetracker.Util.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -49,7 +49,7 @@ public final class PlaytimeCommand implements CommandExecutor {
     public boolean onCommand(CommandSender cs, Command cmnd, String alias, String[] args) {
         if (cs instanceof Player) {
             Player player = (Player) cs;
-            TrackedPlayer tracked = tracker.getPlayer(player.getName());
+            TrackedPlayer tracked = tracker.getPlayer(player.getUniqueId());
             if (args.length < 1) {
                 long first = tracked.getFirstJoined();
                 if (first != Util.UNINITIALISED_TIME) {

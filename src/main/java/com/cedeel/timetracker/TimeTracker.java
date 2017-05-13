@@ -24,20 +24,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker;
 
-import be.darnell.timetracker.storage.FileStorage;
-import be.darnell.timetracker.storage.Storage;
+import com.cedeel.timetracker.Util.Util;
+import com.cedeel.timetracker.storage.FileStorage;
+import com.cedeel.timetracker.storage.Storage;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class TimeTracker {
 
     // In-memory set of logged in players
-    private ConcurrentMap<String, TrackedPlayer> players;
+    private ConcurrentMap<UUID, TrackedPlayer> players;
     // File storage
     private Storage storage;
     // Date formatting
@@ -47,7 +49,7 @@ public class TimeTracker {
     public TimeTracker(Plugin plugin) {
         // TODO: Change storage
         storage = new FileStorage(plugin.getDataFolder());
-        players = new ConcurrentHashMap<String, TrackedPlayer>();
+        players = new ConcurrentHashMap<UUID, TrackedPlayer>();
         storage.saveData();
 
         alwaysDate = plugin.getConfig().getBoolean("AlwaysDate", false);
@@ -70,30 +72,30 @@ public class TimeTracker {
         else return Util.humanTime(start, end) + " ago";
     }
 
-    protected void addPlayer(final String name) {
-        if (!getPlayers().containsKey(name)) {
-            TrackedPlayer player = storage.getPlayer(name);
+    protected void addPlayer(final UUID id) {
+        if (!getPlayers().containsKey(id)) {
+            TrackedPlayer player = storage.getPlayer(id);
             long time = (new Date()).getTime();
             if (player.getLastSeen() == Util.UNINITIALISED_TIME || player.getFirstJoined() == Util.UNINITIALISED_TIME) {
-                getPlayers().put(player.getPlayerName(), new TrackedPlayer(player.getPlayerName(), time, time, player.getPlaytime()));
+                getPlayers().put(player.getPlayerID(), new TrackedPlayer(player.getPlayerID(), time, time, player.getPlaytime()));
             } else {
-                getPlayers().put(player.getPlayerName(), new TrackedPlayer(player.getPlayerName(), player.getFirstJoined(), time, player.getPlaytime()));
+                getPlayers().put(player.getPlayerID(), new TrackedPlayer(player.getPlayerID(), player.getFirstJoined(), time, player.getPlaytime()));
             }
         }
     }
 
-    protected boolean isFirstSession(final String name) {
-        TrackedPlayer target = getPlayer(name);
+    protected boolean isFirstSession(final UUID id) {
+        TrackedPlayer target = getPlayer(id);
         return target.getFirstJoined() == target.getLastSeen();
     }
 
-    protected boolean removePlayer(final String name) {
-        TrackedPlayer tracked = players.get(name);
+    protected boolean removePlayer(final UUID id) {
+        TrackedPlayer tracked = players.get(id);
         if (tracked != null) {
             long time = (new Date()).getTime();
             long playtime = (time - tracked.getLastSeen()) + tracked.getPlaytime();
-            storage.pushPlayer(new TrackedPlayer(tracked.getPlayerName(), tracked.getFirstJoined(), time, playtime));
-            getPlayers().remove(name);
+            storage.pushPlayer(new TrackedPlayer(tracked.getPlayerID(), tracked.getFirstJoined(), time, playtime));
+            getPlayers().remove(id);
             return true;
         }
         return false;
@@ -101,15 +103,18 @@ public class TimeTracker {
 
     /**
      * Retrieve a player
-     * @param name Name of the player
+     * @param id UUID of the player
      * @return Tracked player
      */
-    public TrackedPlayer getPlayer(String name) {
-        if (players.containsKey(name)) {
-            return players.get(name);
-        } else {
-            return storage.getPlayer(name);
+    public TrackedPlayer getPlayer(UUID id) {
+        if (id != null) {
+            if (players.containsKey(id)) {
+                return players.get(id);
+            } else {
+                return storage.getPlayer(id);
+            }
         }
+        return null;
     }
 
     /**
@@ -117,13 +122,13 @@ public class TimeTracker {
      *
      * @return Get the list of players
      */
-    public ConcurrentMap<String, TrackedPlayer> getPlayers() {
+    public ConcurrentMap<UUID, TrackedPlayer> getPlayers() {
         return players;
     }
 
     public void shutDown() {
-        for (String p : getPlayers().keySet()) {
-            removePlayer(p);
+        for (UUID id : getPlayers().keySet()) {
+            removePlayer(id);
         }
         storage.saveData();
     }

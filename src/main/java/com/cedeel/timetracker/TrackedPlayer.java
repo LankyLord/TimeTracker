@@ -24,33 +24,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker.storage;
+package com.cedeel.timetracker;
 
-import be.darnell.timetracker.TrackedPlayer;
+import java.util.UUID;
 
-/**
- * A common way to store tracked players to various places.
- */
-public interface Storage {
-
-    /**
-     * Save all data to source
-     * @return Whether the save was successful or not.
-     */
-    public boolean saveData();
+public class TrackedPlayer {
+    private long firstJoined, lastSeen, playtime;
+    private UUID id;
 
     /**
-     * Return a tracked player.
-     * If the player is not found a blank template will be returned.
-     * @param name Name of the player to look up
-     * @return The tracked player data corresponding
+     * A player that is tracked by this plugin
+     * @param id The UUID of the player
+     * @param firstJoined The time, in milliseconds, of their first join
+     * @param lastSeen The time, in milliseconds, of when they last left the server
+     * @param playtime The total play time of the player
      */
-    public TrackedPlayer getPlayer(String name);
+    public TrackedPlayer(UUID id, long firstJoined, long lastSeen, long playtime) {
+        this.id = id;
+        this.firstJoined = firstJoined;
+        this.lastSeen = lastSeen;
+        this.playtime = playtime;
+    }
 
     /**
-     * Push a player to storage, overwriting existing data if necessary.
-     * @param player The player data to store
-     * @return Whether the operation was successful
+     * Get the time in milliseconds of the first join of a given player
+     * @return The time in milliseconds of the first join
      */
-    public boolean pushPlayer(TrackedPlayer player);
+    public long getFirstJoined() {
+        return firstJoined;
+    }
+
+    /**
+     * Get the time in milliseconds of the last time a given player left the server
+     * @return The time in milliseconds of the last time they left the server
+     */
+    public long getLastSeen() {
+        return lastSeen;
+    }
+
+    /**
+     * Get the time a player has spent on the server
+     * @return The time, in milliseconds, the player has spent on the server
+     */
+    public long getPlaytime() {
+        return playtime;
+    }
+
+    /**
+     * Get the UUID of the player
+     * @return The UUID of the player
+     */
+    public UUID getPlayerID() {
+        return id;
+    }
 }

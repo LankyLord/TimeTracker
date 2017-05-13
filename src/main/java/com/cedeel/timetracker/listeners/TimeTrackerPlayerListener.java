@@ -24,9 +24,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker.listeners;
+package com.cedeel.timetracker.listeners;
 
-import be.darnell.timetracker.Plugin;
+import com.cedeel.timetracker.Plugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -45,12 +45,12 @@ public final class TimeTrackerPlayerListener implements Listener {
     @SuppressWarnings("UnusedDeclaration")
     @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        plugin.removePlayerAsync(event.getPlayer().getName().toLowerCase());
+        plugin.removePlayerAsync(event.getPlayer().getUniqueId());
     }
 
     @SuppressWarnings("UnusedDeclaration")
     @EventHandler (priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        plugin.addPlayerAsync(event.getPlayer().getName());
+        plugin.addPlayerAsync(event.getPlayer().getUniqueId());
     }
 }

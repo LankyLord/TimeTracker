@@ -24,11 +24,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker;
 
-import be.darnell.timetracker.commands.PlaytimeCommand;
-import be.darnell.timetracker.commands.SeenCommand;
-import be.darnell.timetracker.listeners.TimeTrackerPlayerListener;
+import com.cedeel.timetracker.commands.PlaytimeCommand;
+import com.cedeel.timetracker.commands.SeenCommand;
+import com.cedeel.timetracker.listeners.TimeTrackerPlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -36,8 +36,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
 public class Plugin extends JavaPlugin {
     private TimeTracker tracker;
@@ -53,7 +52,7 @@ public class Plugin extends JavaPlugin {
         registerCommands();
 
         for (Player p : getServer().getOnlinePlayers())
-            addPlayerAsync(p.getName());
+            addPlayerAsync(p.getUniqueId());
 
         joinMsg = ChatColor.translateAlternateColorCodes('&', getConfig().getString("MessageColour", "&e")) +
                 getConfig().getString("JoinMessage", "Welcome %p to the server!");
@@ -87,15 +86,15 @@ public class Plugin extends JavaPlugin {
     /**
      * Add a player to the list in memory
      *
-     * @param name The player to add
+     * @param id The UUID of the player to add
      */
-    public void addPlayerAsync(final String name) {
+    public void addPlayerAsync(final UUID id) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                tracker.addPlayer(name);
-                if (tracker.isFirstSession(name.toLowerCase())) {
-                    Bukkit.getServer().broadcastMessage(joinMsg.replace("%p", name));
+                tracker.addPlayer(id);
+                if (tracker.isFirstSession(id)) {
+                    Bukkit.getServer().broadcastMessage(joinMsg.replace("%p", getServer().getPlayer(id).getDisplayName()));
                 }
             }
         }.runTaskAsynchronously(this);
@@ -104,13 +103,13 @@ public class Plugin extends JavaPlugin {
     /**
      * Remove a player from the list in memory
      *
-     * @param name The player to remove
+     * @param id The UUID of  the player to remove
      */
-    public void removePlayerAsync(final String name) {
+    public void removePlayerAsync(final UUID id) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                tracker.removePlayer(name);
+                tracker.removePlayer(id);
             }
         }.runTaskAsynchronously(this);
     }

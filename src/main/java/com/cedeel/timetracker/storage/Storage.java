@@ -24,60 +24,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker.storage;
 
-public class TrackedPlayer {
-    private long firstJoined, lastSeen, playtime;
-    private String name;
+import com.cedeel.timetracker.TrackedPlayer;
 
-    /**
-     * A player that is tracked by this plugin
-     * @param name The username of the player
-     * @param firstJoined The time, in milliseconds, of their first join
-     * @param lastSeen The time, in milliseconds, of when they last left the server
-     * @param playtime The total play time of the player
-     */
-    public TrackedPlayer(String name, long firstJoined, long lastSeen, long playtime) {
-        this.name = name.toLowerCase();
-        this.firstJoined = firstJoined;
-        this.lastSeen = lastSeen;
-        this.playtime = playtime;
-    }
+import java.util.UUID;
+
+/**
+ * A common way to store tracked players to various places.
+ */
+public interface Storage {
 
     /**
-     * Get the time in milliseconds of the first join of a given player
-     * @return The time in milliseconds of the first join
+     * Save all data to source
+     * @return Whether the save was successful or not.
      */
-    public long getFirstJoined() {
-        return firstJoined;
-    }
+    public boolean saveData();
 
     /**
-     * Get the time in milliseconds of the last time a given player left the server
-     * @return The time in milliseconds of the last time they left the server
+     * Return a tracked player.
+     * If the player is not found a blank template will be returned.
+     * @param name Name of the player to look up
+     * @return The tracked player data corresponding
      */
-    public long getLastSeen() {
-        return lastSeen;
-    }
+    public TrackedPlayer getPlayer(UUID id);
 
     /**
-     * Get the time a player has spent on the server
-     * @return The time, in milliseconds, the player has spent on the server
+     * Push a player to storage, overwriting existing data if necessary.
+     * @param player The player data to store
+     * @return Whether the operation was successful
      */
-    public long getPlaytime() {
-        return playtime;
-    }
-
-    /**
-     * Get the name of the player
-     * @return The name of the player
-     */
-    public String getPlayerName() {
-        return name;
-    }
-
-    @Override
-    public String toString(){
-        return name;
-    }
+    public boolean pushPlayer(TrackedPlayer player);
 }

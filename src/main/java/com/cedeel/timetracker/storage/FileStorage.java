@@ -24,15 +24,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker.storage;
+package com.cedeel.timetracker.storage;
 
-import be.darnell.timetracker.TrackedPlayer;
-import be.darnell.timetracker.Util;
+import com.cedeel.timetracker.TrackedPlayer;
+import com.cedeel.timetracker.Util.UUIDFetcher;
+import com.cedeel.timetracker.Util.Util;
+import com.google.common.io.Files;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 
 /**
  * An implementation of storage to YAML file.
@@ -42,7 +45,7 @@ public class FileStorage implements Storage {
     private File dataFolder;
     private YamlConfiguration Data = null;
     private File DataFile = null;
-    private static final String DATAFILENAME = "Data.yml";
+    private static final String DATAFILENAME = "playertimes.yml";
 
     // Configuration section names
     private static final String FIRST_JOIN = "first";
@@ -55,6 +58,8 @@ public class FileStorage implements Storage {
      */
     public FileStorage(File path) {
         dataFolder = path;
+        if (new File(path, "Data.yml").exists() && !(new File(path, DATAFILENAME).exists()))
+            new Converter(path).convert();
     }
 
     /**
@@ -77,6 +82,7 @@ public class FileStorage implements Storage {
             return true;
         } catch (IOException ex) {
             //instance.getLogger().log(Level.SEVERE, "Could not save config to " + DataFile, ex);
+
             return false;
         }
     }
@@ -89,24 +95,65 @@ public class FileStorage implements Storage {
     }
 
     @Override
-    public TrackedPlayer getPlayer(String name) {
+    public TrackedPlayer getPlayer(UUID id) {
         TrackedPlayer result;
-        String lookupName = name.toLowerCase();
-        if (this.getData().isConfigurationSection(lookupName)) {
-            ConfigurationSection section = this.getData().getConfigurationSection(lookupName);
-            result = new TrackedPlayer(lookupName, section.getLong(FIRST_JOIN), section.getLong(LAST_SEEN), section.getLong(PLAYTIME));
+        if (this.getData().isConfigurationSection(id.toString())) {
+            ConfigurationSection section = this.getData().getConfigurationSection(id.toString());
+            result = new TrackedPlayer(id, section.getLong(FIRST_JOIN), section.getLong(LAST_SEEN), section.getLong(PLAYTIME));
         } else {
-            result = new TrackedPlayer(lookupName, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME);
+            result = new TrackedPlayer(id, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME, Util.UNINITIALISED_TIME);
         }
         return result;
     }
 
     @Override
     public boolean pushPlayer(TrackedPlayer player) {
-        ConfigurationSection section = getData().createSection(player.getPlayerName());
+        ConfigurationSection section = getData().createSection(player.getPlayerID().toString());
         section.set(FIRST_JOIN, player.getFirstJoined());
         section.set(LAST_SEEN, player.getLastSeen());
         section.set(PLAYTIME, player.getPlaytime());
         return saveData();
+    }
+}
+
+class Converter {
+    File file, nfile;
+
+    Converter(File path) {
+        file = new File(path, "Data.yml");
+        nfile = new File(path, "playertimes.yml");
+    }
+
+    YamlConfiguration convert() {
+        System.out.println("Starting conversion. This might take a while!");
+        YamlConfiguration result = new YamlConfiguration();
+        if (file.exists()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            Map<String, UUID> users = new HashMap<String, UUID>();
+            try {
+                users = new UUIDFetcher(new ArrayList<String>(config.getKeys(false))).call();
+            } catch (Exception ignored) {}
+            Map<String, UUID> lusers = new HashMap<String, UUID>(users.size());
+            for ( Map.Entry<String, UUID> e : users.entrySet())
+                lusers.put(e.getKey().toLowerCase(), e.getValue());
+
+            for ( String key : config.getKeys(false)) {
+                try {
+                    ConfigurationSection se = result.createSection(lusers.get(key).toString());
+                    se.set("first", config.get(key + ".first"));
+                    se.set("last", config.get(key + ".last"));
+                    se.set("playtime", config.get(key + ".playtime"));
+                } catch (Exception e) {
+                    System.err.println("User not found: " + key);;
+                }
+            }
+            try {
+                result.save(nfile);
+                Files.move(file, new File(file.toString() + ".bak"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 }

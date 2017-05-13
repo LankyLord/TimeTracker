@@ -24,9 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package be.darnell.timetracker;
+package com.cedeel.timetracker.Util;
 
 public class Util {
+    public final static long UNINITIALISED_TIME = -1L;
 
     /**
      * Construct a human readable string of a duration
@@ -65,6 +66,4 @@ public class Util {
         }
         return null;
     }
-
-    public final static long UNINITIALISED_TIME = -1L;
 }
